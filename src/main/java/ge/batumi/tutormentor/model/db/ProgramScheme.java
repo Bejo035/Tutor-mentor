@@ -1,23 +1,26 @@
 package ge.batumi.tutormentor.model.db;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Document(collection = "users")
 @Data
-@NoArgsConstructor
+@Document(collection = "programScheme")
 @AllArgsConstructor
-public class UserDb {
+@NoArgsConstructor
+@ToString
+public class ProgramScheme {
+
     @Id
     private String id;
-    private String userName;
-    private String password;
-    private List<UserRole> roles;
-    private boolean confirmed = false;
+    private String title;
+    private String description;
+    private List<String> mentorIds;
+    private List<String> tutorIds;
+    private List<String> seekerIds;
 }
