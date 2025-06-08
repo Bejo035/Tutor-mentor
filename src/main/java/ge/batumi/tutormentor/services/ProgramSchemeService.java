@@ -1,17 +1,17 @@
 package ge.batumi.tutormentor.services;
 
+import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import ge.batumi.tutormentor.model.db.ProgramScheme;
 import ge.batumi.tutormentor.model.db.UserDb;
+import ge.batumi.tutormentor.model.db.UserProgramRole;
 import ge.batumi.tutormentor.model.request.ProgramSchemeRequest;
 import ge.batumi.tutormentor.repository.ProgramSchemeRepository;
-import ge.batumi.tutormentor.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,13 +21,17 @@ import java.util.Map;
  * Service layer for managing ProgramScheme operations.
  */
 @Service
-@RequiredArgsConstructor
-public class ProgramSchemeService {
+public class ProgramSchemeService extends ARepositoryService<ProgramSchemeRepository, ProgramScheme, String> {
 
     private static final Logger LOGGER = LogManager.getLogger(ProgramSchemeService.class);
 
-    private final ProgramSchemeRepository programSchemeRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
+
+    @Autowired
+    public ProgramSchemeService(ProgramSchemeRepository repository, UserService userService) {
+        super(repository);
+        this.userService = userService;
+    }
 
     /**
      * Creates and saves a new ProgramScheme.
@@ -36,16 +40,14 @@ public class ProgramSchemeService {
      * @return The saved ProgramScheme entity.
      */
     public ProgramScheme createProgramScheme(ProgramSchemeRequest request) throws BadRequestException {
-        validateUserIds(request);
+//        validateUserIds(request);
         ProgramScheme program = new ProgramScheme(
                 null,
                 request.getTitle(),
                 request.getDescription(),
-                request.getMentorIds(),
-                request.getTutorIds(),
-                request.getSeekerIds()
+                new HashMap<>() //request.getUserProgramRoleToUserMap()
         );
-        return programSchemeRepository.save(program);
+        return repository.save(program);
     }
 
     /**
@@ -55,19 +57,17 @@ public class ProgramSchemeService {
      * @param request The new request data.
      * @return The updated ProgramScheme entity.
      */
-    public ProgramScheme updateProgramScheme(String id, ProgramSchemeRequest request) throws BadRequestException {
-        ProgramScheme existing = programSchemeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ProgramScheme not found"));
+    public ProgramScheme updateProgramScheme(String id, ProgramSchemeRequest request) throws BadRequestException, ResourceNotFoundException {
+        ProgramScheme existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ProgramScheme not found"));
 
-        validateUserIds(request);
+//        validateUserIds(request);
 
         existing.setTitle(request.getTitle());
         existing.setDescription(request.getDescription());
-        existing.setMentorIds(request.getMentorIds());
-        existing.setTutorIds(request.getTutorIds());
-        existing.setSeekerIds(request.getSeekerIds());
+        existing.setUserProgramRoleToUserMap(new HashMap<>());
 
-        return programSchemeRepository.save(existing);
+        return repository.save(existing);
     }
 
     /**
@@ -77,7 +77,7 @@ public class ProgramSchemeService {
      * @return The corresponding ProgramScheme.
      */
     public ProgramScheme getProgramScheme(String id) {
-        return programSchemeRepository.findById(id)
+        return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ProgramScheme not found"));
     }
 
@@ -89,10 +89,15 @@ public class ProgramSchemeService {
      */
     public Map<String, List<UserDb>> getFullUserDetails(String id) {
         ProgramScheme scheme = getProgramScheme(id);
+        Map<UserProgramRole, List<String>> userProgramRoleToUserMap = scheme.getUserProgramRoleToUserMap();
         Map<String, List<UserDb>> result = new HashMap<>();
-        result.put("mentors", userRepository.findAllById(scheme.getMentorIds()));
-        result.put("tutors", userRepository.findAllById(scheme.getTutorIds()));
-        result.put("seekers", userRepository.findAllById(scheme.getSeekerIds()));
+        if (userProgramRoleToUserMap == null) {
+            return result;
+        }
+        for (Map.Entry<UserProgramRole, List<String>> entry : userProgramRoleToUserMap.entrySet()) {
+            result.put(entry.getKey().toString(), userService.findAllById(entry.getValue()));
+        }
+
         return result;
     }
 
@@ -102,24 +107,31 @@ public class ProgramSchemeService {
      * @return The corresponding {@link List<ProgramScheme>}
      */
     public List<ProgramScheme> getAll() {
-        return programSchemeRepository.findAll();
+        return repository.findAll();
     }
 
-    /**
-     * Validates that all user IDs in the request exist in the database.
-     *
-     * @param request The ProgramScheme request containing user ID lists.
-     */
-    private void validateUserIds(ProgramSchemeRequest request) throws BadRequestException {
-        List<String> allIds = new ArrayList<>();
-        allIds.addAll(request.getMentorIds());
-        allIds.addAll(request.getTutorIds());
-        allIds.addAll(request.getSeekerIds());
-        allIds = allIds.stream().distinct().toList();
-        LOGGER.info(allIds);
-        long countByIdIn = userRepository.countByIdIn(allIds);
-        if (countByIdIn != allIds.size()) {
-            throw new BadRequestException("Some user IDs are invalid.");
-        }
+//    /**
+//     * Validates that all user IDs in the request exist in the database.
+//     *
+//     * @param request The ProgramScheme request containing user ID lists.
+//     */
+//    private void validateUserIds(ProgramSchemeRequest request) throws BadRequestException {
+//        List<String> allIds = new ArrayList<>();
+//        if (request.getUserProgramRoleToUserMap() == null) {
+//            return;
+//        }
+//        for (List<String> userIds : request.getUserProgramRoleToUserMap().values()) {
+//            allIds.addAll(userIds);
+//        }
+//        allIds = allIds.stream().distinct().toList();
+//        LOGGER.info(allIds);
+//        long countByIdIn = userService.countByIdIn(allIds);
+//        if (countByIdIn != allIds.size()) {
+//            throw new BadRequestException("Some user IDs are invalid.");
+//        }
+//    }
+
+    public ProgramScheme save(ProgramScheme programScheme) {
+        return repository.save(programScheme);
     }
 }

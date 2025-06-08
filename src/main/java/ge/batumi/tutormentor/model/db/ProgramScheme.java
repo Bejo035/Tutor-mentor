@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Document(collection = "programScheme")
@@ -15,12 +16,9 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class ProgramScheme {
-
     @Id
     private String id;
     private String title;
     private String description;
-    private List<String> mentorIds;
-    private List<String> tutorIds;
-    private List<String> seekerIds;
+    private Map<UserProgramRole, List<String>> userProgramRoleToUserMap;
 }

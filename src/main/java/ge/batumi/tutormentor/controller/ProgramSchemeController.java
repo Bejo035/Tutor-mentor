@@ -1,11 +1,15 @@
 package ge.batumi.tutormentor.controller;
 
+import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
+import ge.batumi.tutormentor.manager.ProgramSchemeManager;
 import ge.batumi.tutormentor.model.db.ProgramScheme;
 import ge.batumi.tutormentor.model.db.UserDb;
+import ge.batumi.tutormentor.model.db.UserProgramRole;
 import ge.batumi.tutormentor.model.request.ProgramSchemeRequest;
 import ge.batumi.tutormentor.services.ProgramSchemeService;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,10 +23,10 @@ import java.util.Map;
 @RequestMapping("${request.mapping.prefix}/programScheme")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
-
 public class ProgramSchemeController {
 
     private final ProgramSchemeService programSchemeService;
+    private final ProgramSchemeManager programSchemeManager;
 
     /**
      * Creates a new ProgramScheme.
@@ -45,8 +49,16 @@ public class ProgramSchemeController {
     @PutMapping("/{id}")
     public ResponseEntity<ProgramScheme> update(
             @PathVariable String id,
-            @RequestBody ProgramSchemeRequest request) throws BadRequestException {
+            @RequestBody ProgramSchemeRequest request) throws BadRequestException, ResourceNotFoundException {
         return ResponseEntity.ok(programSchemeService.updateProgramScheme(id, request));
+    }
+
+
+    @PutMapping("/{id}/addUser")
+    public ResponseEntity<ProgramScheme> addUsers(
+            @PathVariable String id,
+            @RequestBody Pair<UserProgramRole, String> userProgramRoleToUserPair) throws BadRequestException, ResourceNotFoundException {//todo refactor it should not be pair
+        return ResponseEntity.ok(programSchemeManager.addUserToProgramScheme(id, userProgramRoleToUserPair.getSecond(), userProgramRoleToUserPair.getFirst()));
     }
 
     /**

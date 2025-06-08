@@ -1,5 +1,5 @@
 package ge.batumi.tutormentor.model.db;
 
 public enum UserRole {
-    TUTOR, MENTOR, SEEKER
+    ADMIN,STUDENT,TEACHER
 }
