@@ -7,6 +7,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,5 +21,10 @@ public class ProgramScheme {
     private String id;
     private String title;
     private String description;
-    private Map<UserProgramRole, List<String>> userProgramRoleToUserMap;
+    private Map<UserProgramRole, List<String>> userProgramRoleToUserMap = new HashMap<>();
+
+    public ProgramScheme(String title, String description) {
+        this.title = title;
+        this.description = description;
+    }
 }

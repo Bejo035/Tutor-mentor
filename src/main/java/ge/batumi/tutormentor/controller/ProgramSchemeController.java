@@ -9,7 +9,6 @@ import ge.batumi.tutormentor.model.request.ProgramSchemeRequest;
 import ge.batumi.tutormentor.services.ProgramSchemeService;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
-import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,12 +52,24 @@ public class ProgramSchemeController {
         return ResponseEntity.ok(programSchemeService.updateProgramScheme(id, request));
     }
 
-
+    /**
+     * Add user to {@link ProgramScheme} as specified {@link UserProgramRole}.
+     *
+     * @param id                       programScheme unique identifier.
+     * @param userProgramRoleToUserMap UserProgramRole to userId map to add.
+     * @return Result {@link ProgramScheme} object
+     * @throws ResourceNotFoundException If {@link ProgramScheme} could not be found.
+     */
     @PutMapping("/{id}/addUser")
     public ResponseEntity<ProgramScheme> addUsers(
             @PathVariable String id,
-            @RequestBody Pair<UserProgramRole, String> userProgramRoleToUserPair) throws BadRequestException, ResourceNotFoundException {//todo refactor it should not be pair
-        return ResponseEntity.ok(programSchemeManager.addUserToProgramScheme(id, userProgramRoleToUserPair.getSecond(), userProgramRoleToUserPair.getFirst()));
+            @RequestBody Map<UserProgramRole, String> userProgramRoleToUserMap) throws ResourceNotFoundException {
+        ProgramScheme result = null;
+        for (Map.Entry<UserProgramRole, String> entry : userProgramRoleToUserMap.entrySet()) {
+            result = programSchemeManager.addUserToProgramScheme(id, entry.getValue(), entry.getKey());
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -78,7 +89,7 @@ public class ProgramSchemeController {
      * @return The corresponding ProgramScheme.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ProgramScheme> get(@PathVariable String id) {
+    public ResponseEntity<ProgramScheme> get(@PathVariable String id) throws ResourceNotFoundException {
         return ResponseEntity.ok(programSchemeService.getProgramScheme(id));
     }
 
@@ -89,7 +100,7 @@ public class ProgramSchemeController {
      * @return A map containing lists of UserDb objects by role.
      */
     @GetMapping("/{id}/users")
-    public ResponseEntity<Map<String, List<UserDb>>> getFullUsers(@PathVariable String id) {
+    public ResponseEntity<Map<String, List<UserDb>>> getFullUsers(@PathVariable String id) throws ResourceNotFoundException {
         return ResponseEntity.ok(programSchemeService.getFullUserDetails(id));
     }
 }
