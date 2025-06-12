@@ -6,7 +6,6 @@ import ge.batumi.tutormentor.model.db.UserDb;
 import ge.batumi.tutormentor.model.db.UserProgramRole;
 import ge.batumi.tutormentor.model.request.ProgramSchemeRequest;
 import ge.batumi.tutormentor.repository.ProgramSchemeRepository;
-import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,12 +50,9 @@ public class ProgramSchemeService extends ARepositoryService<ProgramSchemeReposi
      * @param request The new request data.
      * @return The updated ProgramScheme entity.
      */
-    public ProgramScheme updateProgramScheme(String id, ProgramSchemeRequest request) throws BadRequestException, ResourceNotFoundException {
+    public ProgramScheme updateProgramScheme(String id, ProgramSchemeRequest request) throws ResourceNotFoundException {
         ProgramScheme existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ProgramScheme not found"));
-
-//        validateUserIds(request);
-
         existing.setTitle(request.getTitle());
         existing.setDescription(request.getDescription());
         existing.setUserProgramRoleToUserMap(new HashMap<>());
@@ -103,27 +99,6 @@ public class ProgramSchemeService extends ARepositoryService<ProgramSchemeReposi
     public List<ProgramScheme> getAll() {
         return repository.findAll();
     }
-
-//    /**
-//     * Validates that all user IDs in the request exist in the database.
-//     *
-//     * @param request The ProgramScheme request containing user ID lists.
-//     */
-//    private void validateUserIds(ProgramSchemeRequest request) throws BadRequestException {
-//        List<String> allIds = new ArrayList<>();
-//        if (request.getUserProgramRoleToUserMap() == null) {
-//            return;
-//        }
-//        for (List<String> userIds : request.getUserProgramRoleToUserMap().values()) {
-//            allIds.addAll(userIds);
-//        }
-//        allIds = allIds.stream().distinct().toList();
-//        LOGGER.info(allIds);
-//        long countByIdIn = userService.countByIdIn(allIds);
-//        if (countByIdIn != allIds.size()) {
-//            throw new BadRequestException("Some user IDs are invalid.");
-//        }
-//    }
 
     public ProgramScheme save(ProgramScheme programScheme) {
         return repository.save(programScheme);
