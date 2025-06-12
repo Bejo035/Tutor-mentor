@@ -16,7 +16,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: java-app
+    container_name: mentortutor-app
     depends_on:
       - mongodb
     ports:
