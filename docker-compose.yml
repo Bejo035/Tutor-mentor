@@ -9,6 +9,8 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - mentortutor-network
 
   java-app:
     build:
@@ -19,6 +21,12 @@ services:
       - mongodb
     ports:
       - "8090:8080"
+    networks:
+      - mentortutor-network
+
+networks:
+  mentortutor-network:
+    driver: bridge
 
 volumes:
   mongo_data:
