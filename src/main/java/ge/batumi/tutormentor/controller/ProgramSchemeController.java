@@ -8,12 +8,10 @@ import ge.batumi.tutormentor.model.db.UserProgramRole;
 import ge.batumi.tutormentor.model.request.ProgramSchemeRequest;
 import ge.batumi.tutormentor.services.ProgramSchemeService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * REST controller for managing ProgramScheme endpoints.
@@ -34,7 +32,7 @@ public class ProgramSchemeController {
      * @return The created ProgramScheme.
      */
     @PostMapping
-    public ResponseEntity<ProgramScheme> create(@RequestBody ProgramSchemeRequest request) throws BadRequestException {
+    public ResponseEntity<ProgramScheme> create(@RequestBody ProgramSchemeRequest request) {
         return ResponseEntity.ok(programSchemeService.createProgramScheme(request));
     }
 
@@ -48,7 +46,7 @@ public class ProgramSchemeController {
     @PutMapping("/{id}")
     public ResponseEntity<ProgramScheme> update(
             @PathVariable String id,
-            @RequestBody ProgramSchemeRequest request) throws BadRequestException, ResourceNotFoundException {
+            @RequestBody ProgramSchemeRequest request) throws ResourceNotFoundException {
         return ResponseEntity.ok(programSchemeService.updateProgramScheme(id, request));
     }
 
@@ -61,15 +59,15 @@ public class ProgramSchemeController {
      * @throws ResourceNotFoundException If {@link ProgramScheme} could not be found.
      */
     @PutMapping("/{id}/addUser")
-    public ResponseEntity<ProgramScheme> addUsers(
+    public ResponseEntity<List<ProgramScheme>> addUsers(
             @PathVariable String id,
             @RequestBody Map<UserProgramRole, String> userProgramRoleToUserMap) throws ResourceNotFoundException {
-        ProgramScheme result = null;
+        Set<ProgramScheme> resultSet = new HashSet<>();
         for (Map.Entry<UserProgramRole, String> entry : userProgramRoleToUserMap.entrySet()) {
-            result = programSchemeManager.addUserToProgramScheme(id, entry.getValue(), entry.getKey());
+            resultSet.add(programSchemeManager.addUserToProgramScheme(id, entry.getValue(), entry.getKey()));
         }
 
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(resultSet.stream().toList());
     }
 
     /**

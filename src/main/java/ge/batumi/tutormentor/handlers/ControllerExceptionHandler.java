@@ -19,6 +19,11 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(value = {ResourceNotFoundException.class})
     public ResponseEntity<?> resourceNotFoundException(ResourceNotFoundException exception) {
-        return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
+        return ResponseEntity.badRequest().header("errorMessage", exception.getMessage()).body(Map.of("message", exception.getMessage()));
+    }
+
+    @ExceptionHandler(value = {Exception.class})
+    public ResponseEntity<?> exception(Exception exception) {
+        return ResponseEntity.internalServerError().header("errorMessage", exception.getMessage()).body(Map.of("message", exception.getMessage()));
     }
 }
