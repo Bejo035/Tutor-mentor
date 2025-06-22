@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface UserRepository extends MongoRepository<UserDb, String> {
     long countByIdIn(List<String> idList);
+
+    UserDb findByUserName(String userName);
 }
