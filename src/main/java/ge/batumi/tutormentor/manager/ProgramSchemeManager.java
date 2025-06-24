@@ -43,6 +43,12 @@ public class ProgramSchemeManager {
         Optional<ProgramScheme> programSchemeOptional = programSchemeService.findById(programSchemeId);
         Optional<UserDb> userDbOptional = userService.findById(userId);
         if (programSchemeOptional.isPresent() && userDbOptional.isPresent()) {
+
+            if (!userDbOptional.get().getProgramRoles().contains(userProgramRole)) {
+                LOGGER.warn("User with id '%s' does not have permission to be added in program scheme as '%s'".formatted(userId, userProgramRole));
+                return programSchemeOptional.get();
+            }
+
             Map<UserProgramRole, List<String>> programRoleToUserMap = programSchemeOptional.get().getUserProgramRoleToUserMap();
             programRoleToUserMap = addToUserProgramRoleToStringListMap(userId, userProgramRole, programRoleToUserMap);
             programSchemeOptional.get().setUserProgramRoleToUserMap(programRoleToUserMap);
@@ -62,12 +68,12 @@ public class ProgramSchemeManager {
     }
 
     /**
-     * Add provided String to provided {@link Map<UserProgramRole, List<String>>} object, if provided {@link Map<UserProgramRole, List<String>>} object is null create it and then add.
+     * Add provided String to provided {@link Map} object, if provided {@link Map} object is null create it and then add.
      *
      * @param toAdd                      String to add.
      * @param userProgramRole            Key to add String to.
-     * @param programRoleToStringListMap {@link Map<UserProgramRole, List<String>>} object to add String to.
-     * @return {@link Map<UserProgramRole, List<String>>} object with added string.
+     * @param programRoleToStringListMap {@link Map} object to add String to.
+     * @return {@link Map} object with added string.
      */
     private Map<UserProgramRole, List<String>> addToUserProgramRoleToStringListMap(String toAdd, UserProgramRole userProgramRole, Map<UserProgramRole, List<String>> programRoleToStringListMap) {
         if (programRoleToStringListMap == null) {
