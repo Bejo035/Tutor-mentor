@@ -2,6 +2,7 @@ package ge.batumi.tutormentor.model.db;
 
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ public class UserDb {
     private List<UserRole> roles;
     private List<UserProgramRole> programRoles;
     private boolean confirmed = false;
+    @JsonIgnore
     private Map<UserProgramRole, List<String>> programRoleToProgramSchemeMap = new HashMap<>();
 
     @JsonAnyGetter
