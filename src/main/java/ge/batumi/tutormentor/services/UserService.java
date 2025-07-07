@@ -1,6 +1,7 @@
 package ge.batumi.tutormentor.services;
 
 import ge.batumi.tutormentor.model.db.UserDb;
+import ge.batumi.tutormentor.model.request.UserRequest;
 import ge.batumi.tutormentor.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,10 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
 
     public UserDb save(UserDb userDb) {
         return repository.save(userDb);
+    }
+
+    public UserDb addUser(UserRequest request) {
+        return repository.save(new UserDb(request));
     }
 
     public List<UserDb> findAllById(List<String> userIds) {

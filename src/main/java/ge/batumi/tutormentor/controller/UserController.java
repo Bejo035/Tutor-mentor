@@ -1,11 +1,10 @@
 package ge.batumi.tutormentor.controller;
 
 import ge.batumi.tutormentor.model.db.UserDb;
+import ge.batumi.tutormentor.model.request.UserRequest;
 import ge.batumi.tutormentor.services.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,5 +30,10 @@ public class UserController {
     @GetMapping
     public List<UserDb> getAllUsers() {
         return userService.findAll();
+    }
+
+    @PostMapping
+    public UserDb addUser(@RequestBody UserRequest request) {
+        return userService.addUser(request);
     }
 }
