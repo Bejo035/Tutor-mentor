@@ -11,13 +11,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.security.Principal;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 
 /**
  * REST controller for managing ProgramScheme endpoints.
  */
 @RestController
-@RequestMapping("${request.mapping.prefix}/programScheme")
+@RequestMapping("api/v1/programScheme")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class ProgramSchemeController {
@@ -76,7 +81,8 @@ public class ProgramSchemeController {
      * @return The corresponding ProgramScheme.
      */
     @GetMapping
-    public ResponseEntity<List<ProgramScheme>> getAll() {
+    public ResponseEntity<List<ProgramScheme>> getAll(Principal principal) {
+        System.out.println(principal.getName());
         return ResponseEntity.ok(programSchemeService.getAll());
     }
 

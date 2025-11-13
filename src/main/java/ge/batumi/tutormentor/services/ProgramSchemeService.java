@@ -82,7 +82,7 @@ public class ProgramSchemeService extends ARepositoryService<ProgramSchemeReposi
         Map<UserProgramRole, List<String>> userProgramRoleToUserMap = scheme.getUserProgramRoleToUserMap();
         Map<String, List<UserDb>> result = new HashMap<>();
         if (userProgramRoleToUserMap == null) {
-            return result;
+            return  result;
         }
         for (Map.Entry<UserProgramRole, List<String>> entry : userProgramRoleToUserMap.entrySet()) {
             result.put(entry.getKey().getName(), userService.findAllById(entry.getValue()));

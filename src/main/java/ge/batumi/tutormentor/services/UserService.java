@@ -5,12 +5,13 @@ import ge.batumi.tutormentor.model.db.UserDb;
 import ge.batumi.tutormentor.model.request.UserRequest;
 import ge.batumi.tutormentor.repository.UserRepository;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class UserService extends ARepositoryService<UserRepository, UserDb, String> {
+public class UserService extends ARepositoryService<UserRepository, UserDb, String> implements UserDetailsService {
     public UserService(UserRepository repository) {
         super(repository);
     }
@@ -29,16 +30,23 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
         return repository.save(userDb);
     }
 
-
     public List<UserDb> findAllById(List<String> userIds) {
         return repository.findAllById(userIds);
     }
 
-    public long countByIdIn(List<String> userIds) {
-        return repository.countByIdIn(userIds);
-    }
-
     public void deleteUser(String id) {
         repository.deleteById(id);
+    }
+
+    public boolean existsByEmail(String email) {
+        return repository.existsByEmail(email);
+    }
+
+    public boolean existsByUsername(String username) {
+        return repository.existsByUsername(username);
+    }
+
+    public UserDb loadUserByUsername(String username) {
+        return repository.findByUsername(username);
     }
 }
