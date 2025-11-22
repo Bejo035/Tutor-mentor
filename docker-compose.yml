@@ -13,6 +13,8 @@ services:
       - mentortutor-network
 
   java-app:
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
     build:
       context: .
       dockerfile: Dockerfile
