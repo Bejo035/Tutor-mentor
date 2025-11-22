@@ -81,8 +81,7 @@ public class ProgramSchemeController {
      * @return The corresponding ProgramScheme.
      */
     @GetMapping
-    public ResponseEntity<List<ProgramScheme>> getAll(Principal principal) {
-        System.out.println(principal.getName());
+    public ResponseEntity<List<ProgramScheme>> getAll() {
         return ResponseEntity.ok(programSchemeService.getAll());
     }
 
