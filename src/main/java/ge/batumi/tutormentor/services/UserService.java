@@ -25,7 +25,7 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
     }
 
     public UserDb updateUser(String id, UserRequest request) throws ResourceNotFoundException {
-        UserDb userDb = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        UserDb userDb = findById(id);
         BeanUtils.copyProperties(request, userDb); // TODO here additional checks is needed!!!
         return repository.save(userDb);
     }
@@ -48,5 +48,15 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
 
     public UserDb loadUserByUsername(String username) {
         return repository.findByUsername(username);
+    }
+
+    public boolean confirmUser(String id) throws ResourceNotFoundException {
+        UserDb userDb = findById(id);
+        if (userDb.isConfirmed()) {
+            return false;
+        }
+        userDb.setConfirmed(true);
+        repository.save(userDb);
+        return true;
     }
 }

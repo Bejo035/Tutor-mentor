@@ -5,10 +5,12 @@ import ge.batumi.tutormentor.model.db.UserDb;
 import ge.batumi.tutormentor.model.request.UserRequest;
 import ge.batumi.tutormentor.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controller class to handle user related stuff.
@@ -49,6 +51,11 @@ public class UserController {
     public String deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return "Success";
+    }
+
+    @PatchMapping("{id}/confirm")
+    public ResponseEntity<?> confirmUser(@PathVariable String id) throws ResourceNotFoundException {
+        return ResponseEntity.ok(Map.of("message", userService.confirmUser(id) ? "Confirmed" : "User is already confirmed."));
     }
 
 }

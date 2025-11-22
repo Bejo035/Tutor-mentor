@@ -1,5 +1,6 @@
 package ge.batumi.tutormentor.services;
 
+import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
@@ -12,8 +13,12 @@ public abstract class ARepositoryService<R extends MongoRepository<K, V>, K, V> 
         this.repository = repository;
     }
 
-    public Optional<K> findById(V id) {
-        return repository.findById(id);
+    public K findById(V id) throws ResourceNotFoundException {
+        Optional<K> entity = repository.findById(id);
+        if (entity.isEmpty()) {
+            throw new ResourceNotFoundException("Could not find resource by %s id".formatted(id));
+        }
+        return entity.get();
     }
 
     public List<K> findAll() {

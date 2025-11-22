@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Management class for {@link ProgramScheme}.
@@ -40,31 +39,27 @@ public class ProgramSchemeManager {
      * @throws ResourceNotFoundException If ether {@link UserDb} or {@link UserProgramRole} could not be found by specified ids.
      */
     public ProgramScheme addUserToProgramScheme(String programSchemeId, String userId, UserProgramRole userProgramRole) throws ResourceNotFoundException {
-        Optional<ProgramScheme> programSchemeOptional = programSchemeService.findById(programSchemeId);
-        Optional<UserDb> userDbOptional = userService.findById(userId);
-        if (programSchemeOptional.isPresent() && userDbOptional.isPresent()) {
-
-            if (!userDbOptional.get().getProgramRoles().contains(userProgramRole)) {
-                LOGGER.warn("User with id '%s' does not have permission to be added in program scheme as '%s'".formatted(userId, userProgramRole));
-                return programSchemeOptional.get();
-            }
-
-            Map<UserProgramRole, List<String>> programRoleToUserMap = programSchemeOptional.get().getUserProgramRoleToUserMap();
-            programRoleToUserMap = addToUserProgramRoleToStringListMap(userId, userProgramRole, programRoleToUserMap);
-            programSchemeOptional.get().setUserProgramRoleToUserMap(programRoleToUserMap);
-
-            Map<UserProgramRole, List<String>> programRoleToProgramSchemeMap = userDbOptional.get().getProgramRoleToProgramSchemeMap();
-            programRoleToProgramSchemeMap = addToUserProgramRoleToStringListMap(programSchemeId, userProgramRole, programRoleToProgramSchemeMap);
-            userDbOptional.get().setProgramRoleToProgramSchemeMap(programRoleToProgramSchemeMap);
-
-            userService.save(userDbOptional.get());
-            ProgramScheme programScheme = programSchemeService.save(programSchemeOptional.get());
-            LOGGER.info("Successfully added user (with id {}) to programScheme (with id {})", userId, programSchemeId);
+        ProgramScheme programScheme = programSchemeService.findById(programSchemeId);
+        UserDb userDb = userService.findById(userId);
+        if (!userDb.getProgramRoles().contains(userProgramRole)) {
+            LOGGER.warn("User with id '%s' does not have permission to be added in program scheme as '%s'".formatted(userId, userProgramRole));
             return programScheme;
         }
-        String message = "Could not find user or programScheme with provided ids userId, programSchemeId: %s, %s".formatted(userId, programSchemeId);
-        LOGGER.warn(message);
-        throw new ResourceNotFoundException(message);
+
+        Map<UserProgramRole, List<String>> programRoleToUserMap = programScheme.getUserProgramRoleToUserMap();
+        programRoleToUserMap = addToUserProgramRoleToStringListMap(userId, userProgramRole, programRoleToUserMap);
+        programScheme.setUserProgramRoleToUserMap(programRoleToUserMap);
+
+        Map<UserProgramRole, List<String>> programRoleToProgramSchemeMap = userDb.getProgramRoleToProgramSchemeMap();
+        programRoleToProgramSchemeMap = addToUserProgramRoleToStringListMap(programSchemeId, userProgramRole, programRoleToProgramSchemeMap);
+        userDb.setProgramRoleToProgramSchemeMap(programRoleToProgramSchemeMap);
+
+        userService.save(userDb);
+        ProgramScheme updatedProgramScheme = programSchemeService.save(programScheme);
+        LOGGER.info("Successfully added user (with id {}) to programScheme (with id {})", userId, programSchemeId);
+        return updatedProgramScheme;
+
+
     }
 
     /**
