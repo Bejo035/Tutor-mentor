@@ -8,6 +8,7 @@ import ge.batumi.tutormentor.model.request.UserRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -53,8 +54,11 @@ public class UserDb implements UserDetails {
         this.password = new BCryptPasswordEncoder().encode(this.password);
     }
 
-    public UserDb(RegisterRequest request) {
+    public UserDb(RegisterRequest request) throws BadRequestException {
         BeanUtils.copyProperties(request, this);
+        if (request.getUserRole().equals(UserRole.ADMIN)) {
+            throw new BadRequestException("'userRole' can only be %s".formatted(Arrays.stream(UserRole.values()).filter(userRole -> userRole != UserRole.ADMIN).map(UserRole::toString).toList()));
+        }
         roles.add(request.getUserRole());
         this.password = new BCryptPasswordEncoder().encode(this.password);
     }
