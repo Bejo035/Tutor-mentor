@@ -1,6 +1,7 @@
 package ge.batumi.tutormentor.handlers;
 
 import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,4 +22,10 @@ public class ControllerExceptionHandler {
     public ResponseEntity<?> resourceNotFoundException(ResourceNotFoundException exception) {
         return ResponseEntity.badRequest().header("errorMessage", exception.getMessage()).body(Map.of("message", exception.getMessage()));
     }
+
+    @ExceptionHandler(value = {BadRequestException.class})
+    public ResponseEntity<?> badRequestException(BadRequestException exception) {
+        return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
+    }
+
 }
