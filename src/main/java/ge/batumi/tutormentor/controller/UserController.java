@@ -63,7 +63,7 @@ public class UserController {
 
     @GetMapping("me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> me(Principal principal) {
+    public ResponseEntity<UserDb> me(Principal principal) {
         return ResponseEntity.ok(userService.loadUserByUsername(principal.getName()));
     }
 }

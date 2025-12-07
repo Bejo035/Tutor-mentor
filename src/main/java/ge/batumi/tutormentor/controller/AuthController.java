@@ -3,6 +3,7 @@ package ge.batumi.tutormentor.controller;
 import ge.batumi.tutormentor.model.request.LoginRequest;
 import ge.batumi.tutormentor.model.request.RefreshRequest;
 import ge.batumi.tutormentor.model.request.RegisterRequest;
+import ge.batumi.tutormentor.model.response.AuthResponse;
 import ge.batumi.tutormentor.services.AuthService;
 import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
@@ -24,17 +25,17 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) throws BadRequestException {
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) throws BadRequestException {
         return ResponseEntity.ok(authService.login(request));
     }
 
     @PostMapping("register")
-    public ResponseEntity<?> login(@RequestBody @Validated RegisterRequest request) throws BadRequestException {
+    public ResponseEntity<AuthResponse> login(@RequestBody @Validated RegisterRequest request) throws BadRequestException {
         return ResponseEntity.ok(authService.register(request));
     }
 
     @PostMapping("refresh")
-    public ResponseEntity<?> refresh(@RequestBody RefreshRequest request) {
+    public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshRequest request) {
         return ResponseEntity.ok(authService.refresh(request));
     }
 }
