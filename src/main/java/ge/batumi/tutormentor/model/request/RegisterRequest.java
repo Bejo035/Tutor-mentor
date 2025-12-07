@@ -1,5 +1,6 @@
 package ge.batumi.tutormentor.model.request;
 
+import ge.batumi.tutormentor.model.db.UserProgramRole;
 import ge.batumi.tutormentor.model.db.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,6 +14,7 @@ public class RegisterRequest {
     private String username;
     private String password;
     private UserRole userRole;
+    private UserProgramRole programRole;
     private String year;
     private String strengths;
     private String motivation;

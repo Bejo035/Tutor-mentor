@@ -60,6 +60,7 @@ public class UserDb implements UserDetails {
             throw new BadRequestException("'userRole' can only be %s".formatted(Arrays.stream(UserRole.values()).filter(userRole -> userRole != UserRole.ADMIN).map(UserRole::toString).toList()));
         }
         roles.add(request.getUserRole());
+        programRoles.add(request.getProgramRole());
         this.password = new BCryptPasswordEncoder().encode(this.password);
     }
 
