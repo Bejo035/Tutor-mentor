@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -59,4 +60,10 @@ public class UserController {
         return ResponseEntity.ok(Map.of("message", userService.confirmUser(id) ? "Confirmed" : "User is already confirmed."));
     }
 
+
+    @GetMapping("me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> me(Principal principal) {
+        return ResponseEntity.ok(userService.loadUserByUsername(principal.getName()));
+    }
 }
