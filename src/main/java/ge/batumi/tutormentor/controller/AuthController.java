@@ -1,6 +1,7 @@
 package ge.batumi.tutormentor.controller;
 
 import ge.batumi.tutormentor.model.request.LoginRequest;
+import ge.batumi.tutormentor.model.request.RefreshRequest;
 import ge.batumi.tutormentor.model.request.RegisterRequest;
 import ge.batumi.tutormentor.services.AuthService;
 import jakarta.annotation.security.PermitAll;
@@ -32,4 +33,8 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(request));
     }
 
+    @PostMapping("refresh")
+    public ResponseEntity<?> refresh(@RequestBody RefreshRequest request) {
+        return ResponseEntity.ok(authService.refresh(request));
+    }
 }

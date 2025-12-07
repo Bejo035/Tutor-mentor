@@ -2,6 +2,7 @@ package ge.batumi.tutormentor.security.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import ge.batumi.tutormentor.model.db.UserDb;
 import ge.batumi.tutormentor.model.db.UserRole;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,5 +49,18 @@ public class JwtService {
                 .withExpiresAt(Date.from(expiry))
                 .withClaim("type", "refresh")
                 .sign(algorithm());
+    }
+
+    public boolean isRefreshTokenValid(String token) {
+        try {
+            JWT.require(algorithm()).withClaim("type", "refresh").build().verify(token);
+            return true;
+        } catch (JWTVerificationException e) {
+            return false;
+        }
+    }
+
+    public String getUsernameFromRefreshToken(String token) {
+        return JWT.require(algorithm()).withClaim("type", "refresh").build().verify(token).getSubject();
     }
 }
