@@ -8,6 +8,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.List;
 
 @Service
@@ -26,7 +27,16 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
 
     public UserDb updateUser(String id, UserRequest request) throws ResourceNotFoundException {
         UserDb userDb = findById(id);
-        BeanUtils.copyProperties(request, userDb); // TODO here additional checks is needed!!!
+        BeanUtils.copyProperties(request, userDb);// TODO here additional checks is needed!!!
+        return repository.save(userDb);
+    }
+
+    public UserDb updateUser(Principal userPrincipal, UserRequest request) throws ResourceNotFoundException {
+        UserDb userDb = loadUserByUsername(userPrincipal.getName());
+        if (userDb == null) {
+            throw new ResourceNotFoundException("Could not find user for '%s' username".formatted(userPrincipal.getName()));
+        }
+        BeanUtils.copyProperties(request, userDb);// TODO here additional checks is needed!!!
         return repository.save(userDb);
     }
 

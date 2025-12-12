@@ -5,9 +5,12 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import ge.batumi.tutormentor.model.request.RegisterRequest;
 import ge.batumi.tutormentor.model.request.UserRequest;
+import ge.batumi.tutormentor.model.response.UserResponse;
+import ge.batumi.tutormentor.security.config.SecurityConfig;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.Id;
@@ -15,12 +18,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.*;
 
 @Document(collection = "users")
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDb implements UserDetails {
@@ -42,26 +44,34 @@ public class UserDb implements UserDetails {
     private String expectations;
     private String hobbies;
     private String username;
+    @Setter
+    private boolean confirmed = false;
     private String password;
     private List<UserRole> roles = new ArrayList<>();
     private List<UserProgramRole> programRoles = new ArrayList<>();
-    private boolean confirmed = false;
     @JsonIgnore
+    @Setter
     private Map<UserProgramRole, List<String>> programRoleToProgramSchemeMap = new HashMap<>();
+
+    public UserResponse toUserResponse() {
+        UserResponse userResponse = new UserResponse();
+        BeanUtils.copyProperties(this, userResponse);
+        return userResponse;
+    }
 
     public UserDb(UserRequest request) {
         BeanUtils.copyProperties(request, this);
-        this.password = new BCryptPasswordEncoder().encode(this.password);
+        setPassword(request.getPassword());
     }
 
     public UserDb(RegisterRequest request) throws BadRequestException {
-        BeanUtils.copyProperties(request, this);
         if (request.getUserRole().equals(UserRole.ADMIN)) {
             throw new BadRequestException("'userRole' can only be %s".formatted(Arrays.stream(UserRole.values()).filter(userRole -> userRole != UserRole.ADMIN).map(UserRole::toString).toList()));
         }
+        BeanUtils.copyProperties(request, this);
         roles.add(request.getUserRole());
         programRoles.add(request.getProgramRole());
-        this.password = new BCryptPasswordEncoder().encode(this.password);
+        setPassword(request.getPassword());
     }
 
     @JsonAnyGetter
@@ -72,6 +82,10 @@ public class UserDb implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream().map(UserRole::name).map(SimpleGrantedAuthority::new).toList();
+    }
+
+    public void setPassword(String password) {
+        this.password = SecurityConfig.passwordEncoder().encode(password);
     }
 
     @Override

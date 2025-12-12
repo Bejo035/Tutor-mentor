@@ -3,6 +3,7 @@ package ge.batumi.tutormentor.controller;
 import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import ge.batumi.tutormentor.model.db.UserDb;
 import ge.batumi.tutormentor.model.request.UserRequest;
+import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,21 +33,21 @@ public class UserController {
     /**
      * Get all users from database
      *
-     * @return List of {@link UserDb} object.
+     * @return List of {@link UserResponse} object.
      */
     @GetMapping
-    public List<UserDb> getAllUsers() {
-        return userService.findAll();
+    public List<UserResponse> getAllUsers() {
+        return userService.findAll().stream().map(UserDb::toUserResponse).toList();
     }
 
     @PostMapping
-    public UserDb addUser(@RequestBody UserRequest request) {
-        return userService.addUser(request);
+    public UserResponse addUser(@RequestBody UserRequest request) {
+        return userService.addUser(request).toUserResponse();
     }
 
     @PutMapping("{id}")
-    public UserDb updateUser(@PathVariable String id, @RequestBody UserRequest request) throws ResourceNotFoundException {
-        return userService.updateUser(id, request);
+    public UserResponse updateUser(@PathVariable String id, @RequestBody UserRequest request) throws ResourceNotFoundException {
+        return userService.updateUser(id, request).toUserResponse();
     }
 
     @DeleteMapping("{id}")
@@ -63,8 +64,15 @@ public class UserController {
 
     @GetMapping("me")
     @PreAuthorize("isAuthenticated()")
-    @CrossOrigin(origins = "*")
-    public ResponseEntity<UserDb> me(Principal principal) {
-        return ResponseEntity.ok(userService.loadUserByUsername(principal.getName()));
+    public ResponseEntity<UserResponse> me(Principal principal) {
+        return ResponseEntity.ok(userService.loadUserByUsername(principal.getName()).toUserResponse());
     }
+
+    @PutMapping("me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponse> meUpdate(@RequestBody UserRequest request, Principal principal) throws ResourceNotFoundException {
+        return ResponseEntity.ok(userService.updateUser(principal, request).toUserResponse());
+    }
+
+
 }
