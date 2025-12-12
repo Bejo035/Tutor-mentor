@@ -7,10 +7,7 @@ import ge.batumi.tutormentor.model.request.RegisterRequest;
 import ge.batumi.tutormentor.model.request.UserRequest;
 import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.security.config.SecurityConfig;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.Id;
@@ -22,7 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.*;
 
 @Document(collection = "users")
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDb implements UserDetails {
