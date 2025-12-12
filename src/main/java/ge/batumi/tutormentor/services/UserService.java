@@ -4,20 +4,22 @@ import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import ge.batumi.tutormentor.model.db.UserDb;
 import ge.batumi.tutormentor.model.request.UserRequest;
 import ge.batumi.tutormentor.repository.UserRepository;
-import ge.batumi.tutormentor.utils.UserMapper;
+import org.apache.commons.beanutils.BeanUtilsBean;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.security.Principal;
 import java.util.List;
 
 @Service
 public class UserService extends ARepositoryService<UserRepository, UserDb, String> implements UserDetailsService {
-    private final UserMapper userMapper;
+    private final BeanUtilsBean beanUtils;
 
-    public UserService(UserRepository repository, UserMapper userMapper) {
+    public UserService(UserRepository repository, BeanUtilsBean beanUtils) {
         super(repository);
-        this.userMapper = userMapper;
+        this.beanUtils = beanUtils;
     }
 
     public UserDb save(UserDb userDb) {
@@ -28,18 +30,18 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
         return repository.save(new UserDb(request));
     }
 
-    public UserDb updateUser(String id, UserRequest request) throws ResourceNotFoundException {
+    public UserDb updateUser(String id, UserRequest request) throws ResourceNotFoundException, InvocationTargetException, IllegalAccessException {
         UserDb userDb = findById(id);
-        userMapper.copyProperties(request, userDb);// TODO here additional checks is needed!!!
+        beanUtils.copyProperties(request, userDb);// TODO here additional checks is needed!!!
         return repository.save(userDb);
     }
 
-    public UserDb updateUser(Principal userPrincipal, UserRequest request) throws ResourceNotFoundException {
+    public UserDb updateUser(Principal userPrincipal, UserRequest request) throws ResourceNotFoundException, InvocationTargetException, IllegalAccessException {
         UserDb userDb = loadUserByUsername(userPrincipal.getName());
         if (userDb == null) {
             throw new ResourceNotFoundException("Could not find user for '%s' username".formatted(userPrincipal.getName()));
         }
-        userMapper.copyProperties(request, userDb);// TODO here additional checks is needed!!!
+        beanUtils.copyProperties(request, userDb);// TODO here additional checks is needed!!!
         return repository.save(userDb);
     }
 

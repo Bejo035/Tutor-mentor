@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.InvocationTargetException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class UserController {
     }
 
     @PutMapping("{id}")
-    public UserResponse updateUser(@PathVariable String id, @RequestBody UserRequest request) throws ResourceNotFoundException {
+    public UserResponse updateUser(@PathVariable String id, @RequestBody UserRequest request) throws ResourceNotFoundException, InvocationTargetException, IllegalAccessException {
         return userService.updateUser(id, request).toUserResponse();
     }
 
@@ -70,7 +71,7 @@ public class UserController {
 
     @PutMapping("me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserResponse> meUpdate(@RequestBody UserRequest request, Principal principal) throws ResourceNotFoundException {
+    public ResponseEntity<UserResponse> meUpdate(@RequestBody UserRequest request, Principal principal) throws ResourceNotFoundException, InvocationTargetException, IllegalAccessException {
         return ResponseEntity.ok(userService.updateUser(principal, request).toUserResponse());
     }
 
