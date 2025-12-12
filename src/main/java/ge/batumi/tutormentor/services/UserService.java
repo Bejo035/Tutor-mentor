@@ -4,7 +4,7 @@ import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import ge.batumi.tutormentor.model.db.UserDb;
 import ge.batumi.tutormentor.model.request.UserRequest;
 import ge.batumi.tutormentor.repository.UserRepository;
-import org.springframework.beans.BeanUtils;
+import ge.batumi.tutormentor.utils.UserMapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +13,11 @@ import java.util.List;
 
 @Service
 public class UserService extends ARepositoryService<UserRepository, UserDb, String> implements UserDetailsService {
-    public UserService(UserRepository repository) {
+    private final UserMapper userMapper;
+
+    public UserService(UserRepository repository, UserMapper userMapper) {
         super(repository);
+        this.userMapper = userMapper;
     }
 
     public UserDb save(UserDb userDb) {
@@ -27,7 +30,7 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
 
     public UserDb updateUser(String id, UserRequest request) throws ResourceNotFoundException {
         UserDb userDb = findById(id);
-        BeanUtils.copyProperties(request, userDb);// TODO here additional checks is needed!!!
+        userMapper.copyProperties(request, userDb);// TODO here additional checks is needed!!!
         return repository.save(userDb);
     }
 
@@ -36,7 +39,7 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
         if (userDb == null) {
             throw new ResourceNotFoundException("Could not find user for '%s' username".formatted(userPrincipal.getName()));
         }
-        BeanUtils.copyProperties(request, userDb);// TODO here additional checks is needed!!!
+        userMapper.copyProperties(request, userDb);// TODO here additional checks is needed!!!
         return repository.save(userDb);
     }
 
