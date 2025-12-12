@@ -2,24 +2,21 @@ package ge.batumi.tutormentor.services;
 
 import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import ge.batumi.tutormentor.model.db.UserDb;
+import ge.batumi.tutormentor.model.request.UpdateUserRequest;
 import ge.batumi.tutormentor.model.request.UserRequest;
 import ge.batumi.tutormentor.repository.UserRepository;
-import org.apache.commons.beanutils.BeanUtilsBean;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.InvocationTargetException;
 import java.security.Principal;
 import java.util.List;
 
 @Service
 public class UserService extends ARepositoryService<UserRepository, UserDb, String> implements UserDetailsService {
-    private final BeanUtilsBean beanUtils;
 
-    public UserService(UserRepository repository, BeanUtilsBean beanUtils) {
+    public UserService(UserRepository repository) {
         super(repository);
-        this.beanUtils = beanUtils;
     }
 
     public UserDb save(UserDb userDb) {
@@ -30,18 +27,18 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
         return repository.save(new UserDb(request));
     }
 
-    public UserDb updateUser(String id, UserRequest request) throws ResourceNotFoundException, InvocationTargetException, IllegalAccessException {
+    public UserDb updateUser(String id, UserRequest request) throws ResourceNotFoundException {
         UserDb userDb = findById(id);
-        beanUtils.copyProperties(request, userDb);// TODO here additional checks is needed!!!
+        BeanUtils.copyProperties(request, userDb);// TODO here additional checks is needed!!!
         return repository.save(userDb);
     }
 
-    public UserDb updateUser(Principal userPrincipal, UserRequest request) throws ResourceNotFoundException, InvocationTargetException, IllegalAccessException {
+    public UserDb updateUser(Principal userPrincipal, UpdateUserRequest request) throws ResourceNotFoundException {
         UserDb userDb = loadUserByUsername(userPrincipal.getName());
         if (userDb == null) {
             throw new ResourceNotFoundException("Could not find user for '%s' username".formatted(userPrincipal.getName()));
         }
-        beanUtils.copyProperties(request, userDb);// TODO here additional checks is needed!!!
+        BeanUtils.copyProperties(request, userDb);// TODO here additional checks is needed!!!
         return repository.save(userDb);
     }
 

@@ -2,6 +2,7 @@ package ge.batumi.tutormentor.controller;
 
 import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import ge.batumi.tutormentor.model.db.UserDb;
+import ge.batumi.tutormentor.model.request.UpdateUserRequest;
 import ge.batumi.tutormentor.model.request.UserRequest;
 import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.services.UserService;
@@ -10,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.InvocationTargetException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class UserController {
     }
 
     @PutMapping("{id}")
-    public UserResponse updateUser(@PathVariable String id, @RequestBody UserRequest request) throws ResourceNotFoundException, InvocationTargetException, IllegalAccessException {
+    public UserResponse updateUser(@PathVariable String id, @RequestBody UserRequest request) throws ResourceNotFoundException {
         return userService.updateUser(id, request).toUserResponse();
     }
 
@@ -71,7 +71,7 @@ public class UserController {
 
     @PutMapping("me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserResponse> meUpdate(@RequestBody UserRequest request, Principal principal) throws ResourceNotFoundException, InvocationTargetException, IllegalAccessException {
+    public ResponseEntity<UserResponse> meUpdate(@RequestBody UpdateUserRequest request, Principal principal) throws ResourceNotFoundException {
         return ResponseEntity.ok(userService.updateUser(principal, request).toUserResponse());
     }
 
