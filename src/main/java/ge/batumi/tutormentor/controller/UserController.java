@@ -21,7 +21,7 @@ import java.util.Map;
  * @since 24.06.2025
  */
 @RestController
-@RequestMapping("api/v1/users ")
+@RequestMapping("api/v1/users")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 @CrossOrigin(origins = "*")
