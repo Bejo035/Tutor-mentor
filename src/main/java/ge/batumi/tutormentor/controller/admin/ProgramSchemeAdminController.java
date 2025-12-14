@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 
@@ -34,8 +35,8 @@ public class ProgramSchemeAdminController {
      * @return The created ProgramScheme.
      */
     @PostMapping
-    public ResponseEntity<ProgramSchemeDb> create(@RequestBody ProgramSchemeRequest request) {
-        return ResponseEntity.ok(programSchemeService.createProgramScheme(request));
+    public ResponseEntity<ProgramSchemeDb> create(@RequestBody ProgramSchemeRequest request, Principal principal) {
+        return ResponseEntity.ok(programSchemeService.createProgramScheme(request, principal));
     }
 
     /**

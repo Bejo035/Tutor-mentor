@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 
@@ -21,10 +22,12 @@ import java.util.List;
 public class ProgramSchemeService extends ARepositoryService<ProgramSchemeRepository, ProgramSchemeDb, String> {
 
     private static final Logger LOGGER = LogManager.getLogger(ProgramSchemeService.class);
+    private final UserService userService;
 
     @Autowired
-    public ProgramSchemeService(ProgramSchemeRepository repository) {
+    public ProgramSchemeService(ProgramSchemeRepository repository, UserService userService) {
         super(repository);
+        this.userService = userService;
     }
 
     /**
@@ -33,8 +36,11 @@ public class ProgramSchemeService extends ARepositoryService<ProgramSchemeReposi
      * @param request The request object containing title, description, and user IDs.
      * @return The saved ProgramScheme entity.
      */
-    public ProgramSchemeDb createProgramScheme(ProgramSchemeRequest request) {
-        ProgramSchemeDb program = new ProgramSchemeDb(request.getTitle(), request.getDescription());
+    public ProgramSchemeDb createProgramScheme(ProgramSchemeRequest request, Principal principal) {
+        LOGGER.info("Creating new program Scheme");
+        ProgramSchemeDb program = new ProgramSchemeDb(request);
+        UserDb userDb = userService.loadUserByUsername(principal.getName());
+        program.setCreatorUserId(userDb.getId());
         return repository.save(program);
     }
 
@@ -69,6 +75,7 @@ public class ProgramSchemeService extends ARepositoryService<ProgramSchemeReposi
     public ProgramSchemeDb save(ProgramSchemeDb programSchemeDb) {
         return repository.save(programSchemeDb);
     }
+
     public List<ProgramSchemeDb> findAllById(List<String> userIds) {
         return repository.findAllById(userIds);
     }

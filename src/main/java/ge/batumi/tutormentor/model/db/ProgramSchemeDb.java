@@ -1,6 +1,7 @@
 package ge.batumi.tutormentor.model.db;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import ge.batumi.tutormentor.model.request.ProgramSchemeRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,10 +30,13 @@ public class ProgramSchemeDb {
     private String creatorUserId;
     private Map<UserProgramRole, List<String>> userProgramRoleToUserMap = new HashMap<>();
 
-    public ProgramSchemeDb(String title, String description) {
-        this.title = title;
-        this.description = description;
+    public ProgramSchemeDb(ProgramSchemeRequest request) {
+        this.title = request.getTitle();
+        this.description = request.getDescription();
+        this.maxSize = request.getMaxSize();
+        this.registrationDates = request.getRegistrationDates();
     }
+
     public record RegistrationDates(LocalDateTime start, LocalDateTime end) {
     }
 }
