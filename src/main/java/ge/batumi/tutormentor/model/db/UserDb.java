@@ -5,9 +5,13 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import ge.batumi.tutormentor.model.request.RegisterRequest;
 import ge.batumi.tutormentor.model.request.UserRequest;
+import ge.batumi.tutormentor.model.response.UserData;
+import ge.batumi.tutormentor.model.response.UserFullResponse;
 import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.security.config.SecurityConfig;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.Id;
@@ -41,19 +45,21 @@ public class UserDb implements UserDetails {
     private String expectations;
     private String hobbies;
     private String username;
-    @Setter
     private boolean confirmed = false;
     private String password;
     private List<UserRole> roles = new ArrayList<>();
     private List<UserProgramRole> programRoles = new ArrayList<>();
     @JsonIgnore
-    @Setter
     private Map<UserProgramRole, List<String>> programRoleToProgramSchemeMap = new HashMap<>();
 
     public UserResponse toUserResponse() {
-        UserResponse userResponse = new UserResponse();
-        BeanUtils.copyProperties(this, userResponse);
-        return userResponse;
+        UserResponse userFullResponse = new UserResponse();
+        BeanUtils.copyProperties(this, userFullResponse);
+        return userFullResponse;
+    }
+
+    public UserData toUserData() {
+        return new UserData(id,name, surname, workingPlace, workingPosition);
     }
 
     public UserDb(UserRequest request) {

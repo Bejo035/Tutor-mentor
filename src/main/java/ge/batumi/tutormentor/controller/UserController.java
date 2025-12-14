@@ -1,9 +1,7 @@
 package ge.batumi.tutormentor.controller;
 
 import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
-import ge.batumi.tutormentor.model.db.UserDb;
 import ge.batumi.tutormentor.model.request.UpdateUserRequest;
-import ge.batumi.tutormentor.model.request.UserRequest;
 import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +10,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Controller class to handle user related stuff.
@@ -25,52 +21,18 @@ import java.util.Map;
 @RestController
 @RequestMapping("api/v1/users")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("isAuthenticated()")
 @CrossOrigin(origins = "*")
 public class UserController {
 
     private final UserService userService;
 
-    /**
-     * Get all users from database
-     *
-     * @return List of {@link UserResponse} object.
-     */
-    @GetMapping
-    public List<UserResponse> getAllUsers() {
-        return userService.findAll().stream().map(UserDb::toUserResponse).toList();
-    }
-
-    @PostMapping
-    public UserResponse addUser(@RequestBody UserRequest request) {
-        return userService.addUser(request).toUserResponse();
-    }
-
-    @PutMapping("{id}")
-    public UserResponse updateUser(@PathVariable String id, @RequestBody UserRequest request) throws ResourceNotFoundException {
-        return userService.updateUser(id, request).toUserResponse();
-    }
-
-    @DeleteMapping("{id}")
-    public String deleteUser(@PathVariable String id) {
-        userService.deleteUser(id);
-        return "Success";
-    }
-
-    @PatchMapping("{id}/confirm")
-    public ResponseEntity<?> confirmUser(@PathVariable String id) throws ResourceNotFoundException {
-        return ResponseEntity.ok(Map.of("message", userService.confirmUser(id) ? "Confirmed" : "User is already confirmed."));
-    }
-
-
     @GetMapping("me")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponse> me(Principal principal) {
         return ResponseEntity.ok(userService.loadUserByUsername(principal.getName()).toUserResponse());
     }
 
     @PutMapping("me")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponse> meUpdate(@RequestBody UpdateUserRequest request, Principal principal) throws ResourceNotFoundException {
         return ResponseEntity.ok(userService.updateUser(principal, request).toUserResponse());
     }

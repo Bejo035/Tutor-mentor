@@ -1,5 +1,6 @@
 package ge.batumi.tutormentor.handlers;
 
+import ge.batumi.tutormentor.exceptions.ExpectationsNotMet;
 import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,11 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(value = {BadRequestException.class})
     public ResponseEntity<?> badRequestException(BadRequestException exception) {
+        return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
+    }
+
+    @ExceptionHandler(value = {ExpectationsNotMet.class})
+    public ResponseEntity<?> badRequestException(ExpectationsNotMet exception) {
         return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
     }
 
