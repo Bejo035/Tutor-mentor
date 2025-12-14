@@ -30,7 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("register")
-    public ResponseEntity<AuthResponse> login(@RequestBody @Validated RegisterRequest request) throws BadRequestException {
+    public ResponseEntity<AuthResponse> register(@RequestBody @Validated RegisterRequest request) throws BadRequestException {
         return ResponseEntity.ok(authService.register(request));
     }
 
