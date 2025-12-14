@@ -48,14 +48,18 @@ public class ProgramSchemeManager {
         ProgramSchemeDb programSchemeDb = programSchemeService.findById(programSchemeId);
 
         ProgramSchemeDb.RegistrationDates registrationDates = programSchemeDb.getRegistrationDates();
-        if (LocalDateTime.now().isBefore(registrationDates.start())) {
-            throw new ExpectationsNotMet("Registration to this program not started yet.");
-        }
 
-        if (LocalDateTime.now().isAfter(registrationDates.end())) {
-            throw new ExpectationsNotMet("Registration to this program has ended.");
-        }
+        if (registrationDates != null) {
+            if (LocalDateTime.now().isBefore(registrationDates.start())) {
+                throw new ExpectationsNotMet("Registration to this program not started yet.");
+            }
 
+            if (LocalDateTime.now().isAfter(registrationDates.end())) {
+                throw new ExpectationsNotMet("Registration to this program has ended.");
+            }
+        } else {
+            LOGGER.warn("Could not find registrationDates in programScheme with '{}' id", programSchemeDb.getId());
+        }
         UserDb userDb = userService.findById(userId);
         if (!userDb.getProgramRoles().contains(userProgramRole)) {
             LOGGER.warn("User with id '%s' does not have permission to be added in program scheme as '%s'".formatted(userId, userProgramRole));
@@ -129,7 +133,7 @@ public class ProgramSchemeManager {
             UserDb creatorUserDb;
             try {
                 creatorUserDb = userService.findById(programSchemeDb.getCreatorUserId());
-            } catch (ResourceNotFoundException e) {
+            } catch (ResourceNotFoundException | IllegalArgumentException e) {
                 creatorUserDb = null;
             }
 
