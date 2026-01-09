@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -56,7 +55,6 @@ public class ProgramSchemeService extends ARepositoryService<ProgramSchemeReposi
                 .orElseThrow(() -> new ResourceNotFoundException("ProgramScheme not found"));
         existing.setTitle(request.getTitle());
         existing.setDescription(request.getDescription());
-        existing.setUserProgramRoleToUserMap(new HashMap<>());
 
         return repository.save(existing);
     }

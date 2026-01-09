@@ -2,6 +2,7 @@ package ge.batumi.tutormentor.manager;
 
 import ge.batumi.tutormentor.exceptions.ExpectationsNotMet;
 import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
+import ge.batumi.tutormentor.model.db.ProgramParticipant;
 import ge.batumi.tutormentor.model.db.ProgramSchemeDb;
 import ge.batumi.tutormentor.model.db.UserDb;
 import ge.batumi.tutormentor.model.db.UserProgramRole;
@@ -9,6 +10,7 @@ import ge.batumi.tutormentor.model.response.ProgramSchemeFullResponse;
 import ge.batumi.tutormentor.model.response.ProgramSchemeResponse;
 import ge.batumi.tutormentor.model.response.UserData;
 import ge.batumi.tutormentor.model.response.UserFullResponse;
+import ge.batumi.tutormentor.services.ProgramParticipantService;
 import ge.batumi.tutormentor.services.ProgramSchemeService;
 import ge.batumi.tutormentor.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Management class for {@link ProgramSchemeDb}.
@@ -34,6 +37,7 @@ public class ProgramSchemeManager {
     private static final Logger LOGGER = LogManager.getLogger(ProgramSchemeManager.class);
     private final ProgramSchemeService programSchemeService;
     private final UserService userService;
+    private final ProgramParticipantService programParticipantService;
 
     /**
      * Add user to programScheme and also update user's associated programSchemes.
@@ -66,63 +70,28 @@ public class ProgramSchemeManager {
             return programSchemeDb;
         }
 
-        Map<UserProgramRole, List<String>> programRoleToUserMap = programSchemeDb.getUserProgramRoleToUserMap();
-        programRoleToUserMap = addToUserProgramRoleToStringListMap(userId, userProgramRole, programRoleToUserMap);
-        programSchemeDb.setUserProgramRoleToUserMap(programRoleToUserMap);
+        programParticipantService.enroll(userId, programSchemeId, userProgramRole);
 
-        Map<UserProgramRole, List<String>> programRoleToProgramSchemeMap = userDb.getProgramRoleToProgramSchemeMap();
-        programRoleToProgramSchemeMap = addToUserProgramRoleToStringListMap(programSchemeId, userProgramRole, programRoleToProgramSchemeMap);
-        userDb.setProgramRoleToProgramSchemeMap(programRoleToProgramSchemeMap);
-
-        userService.save(userDb);
-        ProgramSchemeDb updatedProgramSchemeDb = programSchemeService.save(programSchemeDb);
         LOGGER.info("Successfully added user (with id {}) to programScheme (with id {})", userId, programSchemeId);
-        return updatedProgramSchemeDb;
-
-
+        return programSchemeDb;
     }
-
-    /**
-     * Add provided String to provided {@link Map} object, if provided {@link Map} object is null create it and then add.
-     *
-     * @param toAdd                      String to add.
-     * @param userProgramRole            Key to add String to.
-     * @param programRoleToStringListMap {@link Map} object to add String to.
-     * @return {@link Map} object with added string.
-     */
-    private Map<UserProgramRole, List<String>> addToUserProgramRoleToStringListMap(String toAdd, UserProgramRole userProgramRole, Map<UserProgramRole, List<String>> programRoleToStringListMap) {
-        if (programRoleToStringListMap == null) {
-            programRoleToStringListMap = new HashMap<>();
-        }
-        List<String> newProgramSchemeListToReplace = programRoleToStringListMap.get(userProgramRole);
-        if (newProgramSchemeListToReplace == null) {
-            newProgramSchemeListToReplace = List.of(toAdd);
-        } else {
-            if (!newProgramSchemeListToReplace.contains(toAdd)) {
-                newProgramSchemeListToReplace.add(toAdd);
-            }
-        }
-
-        programRoleToStringListMap.put(userProgramRole, newProgramSchemeListToReplace);
-        return programRoleToStringListMap;
-    }
-
 
     /**
      * Retrieves full user details (UserDb objects) for mentors, tutors, and seekers of a ProgramScheme.
      *
-     * @param programSchemeDb The ProgramScheme to retrieve user details for.
+     * @param programSchemeId The ProgramScheme id to get users for.
      * @return A map containing lists of users grouped by their role in the scheme.
      */
-    public Map<UserProgramRole, List<UserDb>> getFullUserDetails(ProgramSchemeDb programSchemeDb) {
-        Map<UserProgramRole, List<String>> userProgramRoleToUserMap = programSchemeDb.getUserProgramRoleToUserMap();
+    public Map<UserProgramRole, List<UserDb>> getFullUserDetails(String programSchemeId) {
+        List<ProgramParticipant> usersOfProgram = programParticipantService.getUsersOfProgram(programSchemeId);
+        Map<UserProgramRole, List<ProgramParticipant>> programParticipantGroupedMap = usersOfProgram.stream().collect(Collectors.groupingBy(ProgramParticipant::getRole));
         Map<UserProgramRole, List<UserDb>> result = new HashMap<>();
-        if (userProgramRoleToUserMap == null) {
-            return result;
-        }
-        for (Map.Entry<UserProgramRole, List<String>> entry : userProgramRoleToUserMap.entrySet()) {
-            result.put(entry.getKey(), userService.findAllById(entry.getValue()));
-        }
+
+        programParticipantGroupedMap.forEach((userProgramRole, programParticipants) -> {
+            List<String> userIds = programParticipants.stream().map(ProgramParticipant::getUserId).toList();
+            List<UserDb> allById = userService.findAllById(userIds);
+            result.put(userProgramRole, allById);
+        });
 
         return result;
     }
@@ -167,7 +136,7 @@ public class ProgramSchemeManager {
             creatorUserDb = null;
         }
 
-        Map<UserProgramRole, List<UserDb>> fullUserDetailsRaw = getFullUserDetails(programSchemeDb);
+        Map<UserProgramRole, List<UserDb>> fullUserDetailsRaw = getFullUserDetails(programSchemeDb.getId());
         Map<UserProgramRole, List<UserData>> userProgramRoleToUserMap = new HashMap<>();
         fullUserDetailsRaw.forEach((userProgramRole, userDbs) -> userProgramRoleToUserMap.put(userProgramRole, userDbs.stream().map(UserDb::toUserData).toList()));
 

@@ -28,7 +28,6 @@ public class ProgramSchemeDb {
     private RegistrationDates registrationDates;
     @JsonIgnore
     private String creatorUserId;
-    private Map<UserProgramRole, List<String>> userProgramRoleToUserMap = new HashMap<>();
 
     public ProgramSchemeDb(ProgramSchemeRequest request) {
         this.title = request.getTitle();
