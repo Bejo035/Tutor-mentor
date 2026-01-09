@@ -49,6 +49,7 @@ public class UserDb implements UserDetails {
     private String password;
     private List<UserRole> roles = new ArrayList<>();
     private List<UserProgramRole> programRoles = new ArrayList<>();
+    private String profileImageId;
 
     public UserResponse toUserResponse() {
         UserResponse userFullResponse = new UserResponse();

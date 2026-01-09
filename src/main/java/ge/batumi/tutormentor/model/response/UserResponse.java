@@ -32,4 +32,5 @@ public class UserResponse {
     private String username;
     private boolean confirmed;
     private List<UserProgramRole> programRoles;
+    private String profileImageId;
 }

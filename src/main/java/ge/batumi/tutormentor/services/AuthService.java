@@ -10,9 +10,14 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +26,7 @@ public class AuthService {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final GridFsTemplate gridFsTemplate;
 
     public AuthResponse login(LoginRequest request) throws BadRequestException {
         UserDb userDb = userService.loadUserByUsername(request.getUsername());
@@ -31,12 +37,29 @@ public class AuthService {
         return generateResponse(userDb);
     }
 
-    public AuthResponse register(RegisterRequest request) throws BadRequestException {
+    public AuthResponse register(RegisterRequest request, MultipartFile profilePhoto) throws BadRequestException {
         if (userService.existsByEmail(request.getEmail()) || userService.existsByUsername(request.getUsername())) {
             throw new BadRequestException("Email or username is taken.");
         }
 
         UserDb userDb = new UserDb(request);
+        if (profilePhoto != null && !profilePhoto.isEmpty()) {
+
+            if (!profilePhoto.getContentType().startsWith("image/")) {
+                throw new BadRequestException("Invalid image type");
+            }
+
+            try {
+                ObjectId fileId = gridFsTemplate.store(
+                        profilePhoto.getInputStream(),
+                        profilePhoto.getOriginalFilename(),
+                        profilePhoto.getContentType()
+                );
+                userDb.setProfileImageId(fileId.toString());
+            } catch (IOException e) {
+                LOGGER.warn("Error while uploading image to database.");
+            }
+        }
         userDb = userService.save(userDb);
         LOGGER.info("User registered by '{}' id", userDb.getId());
 

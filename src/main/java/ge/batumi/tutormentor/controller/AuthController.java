@@ -8,13 +8,11 @@ import ge.batumi.tutormentor.services.AuthService;
 import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping("api/v1/auth")
@@ -29,9 +27,10 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
-    @PostMapping("register")
-    public ResponseEntity<AuthResponse> register(@RequestBody @Validated RegisterRequest request) throws BadRequestException {
-        return ResponseEntity.ok(authService.register(request));
+    @PostMapping(value = "register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<AuthResponse> register(@RequestPart("data") RegisterRequest request,
+                                                 @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto) throws BadRequestException {
+        return ResponseEntity.ok(authService.register(request, profilePhoto));
     }
 
     @PostMapping("refresh")
