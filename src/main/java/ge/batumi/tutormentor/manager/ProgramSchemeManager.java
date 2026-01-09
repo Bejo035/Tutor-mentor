@@ -161,24 +161,25 @@ public class ProgramSchemeManager {
     /**
      * Retrieves full user details (UserDb objects) for mentors, tutors, and seekers of a ProgramScheme.
      *
-     * @param userDb The ProgramScheme to retrieve user details for.
+     * @param userId The user id to retrieve program scheme details for.
      * @return A map containing lists of users grouped by their role in the scheme.
      */
-    public Map<UserProgramRole, List<ProgramSchemeDb>> getFullProgramSchemeDetails(UserDb userDb) {
-        Map<UserProgramRole, List<String>> userProgramRoleToProgramSchemeMap = userDb.getProgramRoleToProgramSchemeMap();
-        Map<UserProgramRole, List<ProgramSchemeDb>> userProgramRoleListProgramSchemeMap = new HashMap<>();
-        if (userProgramRoleToProgramSchemeMap == null) {
-            return userProgramRoleListProgramSchemeMap;
-        }
-        for (Map.Entry<UserProgramRole, List<String>> entry : userProgramRoleToProgramSchemeMap.entrySet()) {
-            userProgramRoleListProgramSchemeMap.put(entry.getKey(), programSchemeService.findAllById(entry.getValue()));
-        }
+    public Map<UserProgramRole, List<ProgramSchemeDb>> getFullProgramSchemeDetails(String userId) {
+        List<ProgramParticipant> usersOfProgram = programParticipantService.getProgramsOfUser(userId);
+        Map<UserProgramRole, List<ProgramParticipant>> programParticipantGroupedMap = usersOfProgram.stream().collect(Collectors.groupingBy(ProgramParticipant::getRole));
+        Map<UserProgramRole, List<ProgramSchemeDb>> result = new HashMap<>();
 
-        return userProgramRoleListProgramSchemeMap;
+        programParticipantGroupedMap.forEach((userProgramRole, programParticipants) -> {
+            List<String> programIds = programParticipants.stream().map(ProgramParticipant::getProgramId).toList();
+            List<ProgramSchemeDb> allById = programSchemeService.findAllById(programIds);
+            result.put(userProgramRole, allById);
+        });
+
+        return result;
     }
 
     public UserFullResponse getAsUserFullResponse(UserDb userDb) {
-        Map<UserProgramRole, List<ProgramSchemeDb>> fullUserDetailsRaw = getFullProgramSchemeDetails(userDb);
+        Map<UserProgramRole, List<ProgramSchemeDb>> fullUserDetailsRaw = getFullProgramSchemeDetails(userDb.getId());
         Map<UserProgramRole, List<ProgramSchemeResponse>> userProgramRoleToUserMap = new HashMap<>();
         fullUserDetailsRaw.forEach((userProgramRole, programSchemeDbList) -> userProgramRoleToUserMap.put(userProgramRole, getAllAsProgramSchemeResponse(programSchemeDbList)));
 
