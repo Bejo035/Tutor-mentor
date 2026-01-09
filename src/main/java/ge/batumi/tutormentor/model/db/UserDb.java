@@ -1,12 +1,9 @@
 package ge.batumi.tutormentor.model.db;
 
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import ge.batumi.tutormentor.model.request.RegisterRequest;
 import ge.batumi.tutormentor.model.request.UserRequest;
 import ge.batumi.tutormentor.model.response.UserData;
-import ge.batumi.tutormentor.model.response.UserFullResponse;
 import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.security.config.SecurityConfig;
 import lombok.AllArgsConstructor;
@@ -20,7 +17,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 @Document(collection = "users")
 @Data
@@ -49,8 +49,6 @@ public class UserDb implements UserDetails {
     private String password;
     private List<UserRole> roles = new ArrayList<>();
     private List<UserProgramRole> programRoles = new ArrayList<>();
-    @JsonIgnore
-    private Map<UserProgramRole, List<String>> programRoleToProgramSchemeMap = new HashMap<>();
 
     public UserResponse toUserResponse() {
         UserResponse userFullResponse = new UserResponse();
@@ -59,7 +57,7 @@ public class UserDb implements UserDetails {
     }
 
     public UserData toUserData() {
-        return new UserData(id,name, surname, workingPlace, workingPosition);
+        return new UserData(id, name, surname, workingPlace, workingPosition);
     }
 
     public UserDb(UserRequest request) {
@@ -75,11 +73,6 @@ public class UserDb implements UserDetails {
         roles.add(request.getUserRole());
         programRoles.add(request.getProgramRole());
         setPassword(request.getPassword());
-    }
-
-    @JsonAnyGetter
-    public Map<UserProgramRole, List<String>> getFlattenedMap() {
-        return programRoleToProgramSchemeMap;
     }
 
     @Override
