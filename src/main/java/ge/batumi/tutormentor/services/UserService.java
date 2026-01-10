@@ -2,15 +2,19 @@ package ge.batumi.tutormentor.services;
 
 import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import ge.batumi.tutormentor.model.db.UserDb;
+import ge.batumi.tutormentor.model.db.UserProgramRole;
 import ge.batumi.tutormentor.model.request.UpdateUserRequest;
 import ge.batumi.tutormentor.model.request.UserRequest;
+import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.repository.UserRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserService extends ARepositoryService<UserRepository, UserDb, String> implements UserDetailsService {
@@ -70,5 +74,12 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
         userDb.setConfirmed(true);
         repository.save(userDb);
         return true;
+    }
+
+    public List<UserResponse> getMentorsAndTutors() {
+        Set<UserDb> result = new HashSet<>(repository.findAllByProgramRolesContains(UserProgramRole.MENTOR));
+        result.addAll(repository.findAllByProgramRolesContains(UserProgramRole.TUTOR));
+
+        return result.stream().map(UserDb::toUserResponse).toList();
     }
 }

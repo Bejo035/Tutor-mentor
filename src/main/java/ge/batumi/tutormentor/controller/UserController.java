@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 /**
  * Controller class to handle user related stuff.
@@ -35,6 +36,11 @@ public class UserController {
     @PutMapping("me")
     public ResponseEntity<UserResponse> meUpdate(@RequestBody UpdateUserRequest request, Principal principal) throws ResourceNotFoundException {
         return ResponseEntity.ok(userService.updateUser(principal, request).toUserResponse());
+    }
+
+    @GetMapping("mentors")
+    public ResponseEntity<List<UserResponse>> getMentors(){
+        return ResponseEntity.ok(userService.getMentorsAndTutors());
     }
 
 
