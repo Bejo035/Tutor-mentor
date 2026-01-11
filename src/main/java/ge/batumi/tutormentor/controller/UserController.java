@@ -5,9 +5,12 @@ import ge.batumi.tutormentor.model.request.UpdateUserRequest;
 import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -33,9 +36,11 @@ public class UserController {
         return ResponseEntity.ok(userService.loadUserByUsername(principal.getName()).toUserResponse());
     }
 
-    @PutMapping("me")
-    public ResponseEntity<UserResponse> meUpdate(@RequestBody UpdateUserRequest request, Principal principal) throws ResourceNotFoundException {
-        return ResponseEntity.ok(userService.updateUser(principal, request).toUserResponse());
+    @PutMapping(value = "me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponse> meUpdate(@RequestPart(value = "data", required = false) UpdateUserRequest request,
+                                                 @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto,
+                                                 @RequestPart(value = "cv", required = false) MultipartFile cv, Principal principal) throws ResourceNotFoundException, BadRequestException {
+        return ResponseEntity.ok(userService.updateUser(principal, request, profilePhoto, cv).toUserResponse());
     }
 
     @GetMapping("mentors")

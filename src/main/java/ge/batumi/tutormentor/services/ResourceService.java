@@ -35,4 +35,8 @@ public class ResourceService {
     public GridFsResource getResource(GridFSFile file) {
         return gridFsTemplate.getResource(file);
     }
+
+    public void deleteResourceById(String id) {
+        gridFsTemplate.delete(Query.query(Criteria.where("_id").is(id)));
+    }
 }
