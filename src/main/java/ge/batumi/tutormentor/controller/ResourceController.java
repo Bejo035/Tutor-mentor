@@ -1,36 +1,33 @@
 package ge.batumi.tutormentor.controller;
 
 import com.mongodb.client.gridfs.model.GridFSFile;
+import ge.batumi.tutormentor.services.ResourceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
-import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("api/v1/resource")
+public class ResourceController {
+    private final ResourceService resourceService;
 
-public class ImageController {
-    private final GridFsTemplate gridFsTemplate;
+    @GetMapping("/{id}")
+    public ResponseEntity<Resource> getResource(@PathVariable String id) {
 
-    @GetMapping("/photo/{id}")
-    public ResponseEntity<Resource> getPhoto(@PathVariable String id) {
-
-        GridFSFile file = gridFsTemplate.findOne(
-                Query.query(Criteria.where("_id").is(id))
-        );
+        GridFSFile file = resourceService.findById(id);
 
         if (file == null) {
             return ResponseEntity.notFound().build();
         }
 
-        GridFsResource resource = gridFsTemplate.getResource(file);
+        GridFsResource resource = resourceService.getResource(file);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(

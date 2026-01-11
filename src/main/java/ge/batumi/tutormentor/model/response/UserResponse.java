@@ -33,4 +33,5 @@ public class UserResponse {
     private boolean confirmed;
     private List<UserProgramRole> programRoles;
     private String profileImageId;
+    private String cvId;
 }

@@ -50,6 +50,7 @@ public class UserDb implements UserDetails {
     private List<UserRole> roles = new ArrayList<>();
     private List<UserProgramRole> programRoles = new ArrayList<>();
     private String profileImageId;
+    private String cvId;
 
     public UserResponse toUserResponse() {
         UserResponse userFullResponse = new UserResponse();

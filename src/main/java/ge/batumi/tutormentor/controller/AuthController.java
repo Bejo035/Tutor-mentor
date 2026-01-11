@@ -29,8 +29,10 @@ public class AuthController {
 
     @PostMapping(value = "register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AuthResponse> register(@RequestPart("data") RegisterRequest request,
-                                                 @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto) throws BadRequestException {
-        return ResponseEntity.ok(authService.register(request, profilePhoto));
+                                                 @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto,
+                                                 @RequestPart(value = "cv", required = false) MultipartFile cv
+    ) throws BadRequestException {
+        return ResponseEntity.ok(authService.register(request, profilePhoto, cv));
     }
 
     @PostMapping("refresh")

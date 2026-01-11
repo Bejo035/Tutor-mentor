@@ -39,9 +39,7 @@ public class UserController {
     }
 
     @GetMapping("mentors")
-    public ResponseEntity<List<UserResponse>> getMentors(){
+    public ResponseEntity<List<UserResponse>> getMentors() {
         return ResponseEntity.ok(userService.getMentorsAndTutors());
     }
-
-
 }
