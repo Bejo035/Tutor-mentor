@@ -5,10 +5,10 @@ import ge.batumi.tutormentor.model.request.UpdateUserRequest;
 import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.services.UserService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,14 +33,13 @@ public class UserController {
 
     @GetMapping("me")
     public ResponseEntity<UserResponse> me(Principal principal) {
-        return ResponseEntity.ok(userService.loadUserByUsername(principal.getName()).toUserResponse());
+        return ResponseEntity.ok(userService.toUserResponse(userService.loadUserByUsername(principal.getName())));
     }
 
     @PutMapping(value = "me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> meUpdate(@RequestPart(value = "data", required = false) UpdateUserRequest request,
-                                                 @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto,
-                                                 @RequestPart(value = "cv", required = false) MultipartFile cv, Principal principal) throws ResourceNotFoundException, BadRequestException {
-        return ResponseEntity.ok(userService.updateUser(principal, request, profilePhoto, cv).toUserResponse());
+                                                 @RequestParam MultiValueMap<String, MultipartFile> files, Principal principal) throws ResourceNotFoundException {
+        return ResponseEntity.ok(userService.toUserResponse(userService.updateUser(principal, request, files)));
     }
 
     @GetMapping("mentors")

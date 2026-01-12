@@ -11,6 +11,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,10 +30,9 @@ public class AuthController {
 
     @PostMapping(value = "register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AuthResponse> register(@RequestPart("data") RegisterRequest request,
-                                                 @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto,
-                                                 @RequestPart(value = "cv", required = false) MultipartFile cv
+                                                 @RequestParam MultiValueMap<String, MultipartFile> files
     ) throws BadRequestException {
-        return ResponseEntity.ok(authService.register(request, profilePhoto, cv));
+        return ResponseEntity.ok(authService.register(request, files));
     }
 
     @PostMapping("refresh")

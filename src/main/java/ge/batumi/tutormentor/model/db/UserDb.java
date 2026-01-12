@@ -4,7 +4,6 @@ package ge.batumi.tutormentor.model.db;
 import ge.batumi.tutormentor.model.request.RegisterRequest;
 import ge.batumi.tutormentor.model.request.UserRequest;
 import ge.batumi.tutormentor.model.response.UserData;
-import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.security.config.SecurityConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -49,14 +48,6 @@ public class UserDb implements UserDetails {
     private String password;
     private List<UserRole> roles = new ArrayList<>();
     private List<UserProgramRole> programRoles = new ArrayList<>();
-    private String profileImageId;
-    private String cvId;
-
-    public UserResponse toUserResponse() {
-        UserResponse userFullResponse = new UserResponse();
-        BeanUtils.copyProperties(this, userFullResponse);
-        return userFullResponse;
-    }
 
     public UserData toUserData() {
         return new UserData(id, name, surname, workingPlace, workingPosition);
