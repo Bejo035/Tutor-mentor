@@ -13,6 +13,9 @@ services:
       - mentortutor-network
 
   java-app:
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - SSL_KEY_STONE_PASSWORD=${SSL_KEY_STONE_PASSWORD}
     build:
       context: .
       dockerfile: Dockerfile
