@@ -32,4 +32,5 @@ public class UserRequest {
     private String expectations;
     private String hobbies;
     private boolean confirmed;
+    private Integer rating;
 }
