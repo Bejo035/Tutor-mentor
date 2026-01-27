@@ -48,6 +48,7 @@ public class UserDb implements UserDetails {
     private String password;
     private List<UserRole> roles = new ArrayList<>();
     private List<UserProgramRole> programRoles = new ArrayList<>();
+    private Integer rating;
 
     public UserData toUserData() {
         return new UserData(id, name, surname, workingPlace, workingPosition);

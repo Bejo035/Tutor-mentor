@@ -11,6 +11,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -36,8 +37,10 @@ public class UserResponse {
     private String username;
     private boolean confirmed;
     private List<UserProgramRole> programRoles;
+    private Map<UserProgramRole, List<ProgramSchemeResponse>> programRoleToProgramSchemeMap;
     @JsonIgnore
     private MultiValueMap<String, String> keyToFileIdsMap = new LinkedMultiValueMap<>();
+    private Integer rating;
 
     @JsonAnyGetter
     public MultiValueMap<String, String> getFlattenedMap() {

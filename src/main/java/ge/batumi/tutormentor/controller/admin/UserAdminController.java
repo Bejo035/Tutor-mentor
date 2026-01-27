@@ -3,7 +3,7 @@ package ge.batumi.tutormentor.controller.admin;
 import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import ge.batumi.tutormentor.manager.ProgramSchemeManager;
 import ge.batumi.tutormentor.model.request.UserRequest;
-import ge.batumi.tutormentor.model.response.UserFullResponse;
+import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,21 +25,21 @@ public class UserAdminController {
     /**
      * Get all users from database
      *
-     * @return List of {@link UserFullResponse} object.
+     * @return List of {@link UserResponse} object.
      */
     @GetMapping
-    public List<UserFullResponse> getAllUsers() {
-        return programSchemeManager.getAllAsUserFullResponse(userService.findAll());
+    public List<UserResponse> getAllUsers() {
+        return programSchemeManager.getAllAsUserResponse(userService.findAll());
     }
 
     @PostMapping
-    public UserFullResponse addUser(@RequestBody UserRequest request) {
-        return programSchemeManager.getAsUserFullResponse(userService.addUser(request));
+    public UserResponse addUser(@RequestBody UserRequest request) {
+        return programSchemeManager.getAsUserResponse(userService.addUser(request));
     }
 
     @PutMapping("{id}")
-    public UserFullResponse updateUser(@PathVariable String id, @RequestBody UserRequest request) throws ResourceNotFoundException {
-        return programSchemeManager.getAsUserFullResponse(userService.updateUser(id, request));
+    public UserResponse updateUser(@PathVariable String id, @RequestBody UserRequest request) throws ResourceNotFoundException {
+        return programSchemeManager.getAsUserResponse(userService.updateUser(id, request));
     }
 
     @DeleteMapping("{id}")

@@ -9,7 +9,7 @@ import ge.batumi.tutormentor.model.db.UserProgramRole;
 import ge.batumi.tutormentor.model.response.ProgramSchemeFullResponse;
 import ge.batumi.tutormentor.model.response.ProgramSchemeResponse;
 import ge.batumi.tutormentor.model.response.UserData;
-import ge.batumi.tutormentor.model.response.UserFullResponse;
+import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.services.ProgramParticipantService;
 import ge.batumi.tutormentor.services.ProgramSchemeService;
 import ge.batumi.tutormentor.services.UserService;
@@ -110,8 +110,8 @@ public class ProgramSchemeManager {
         }).toList();
     }
 
-    public List<UserFullResponse> getAllAsUserFullResponse(List<UserDb> userDbList) {
-        return userDbList.stream().map(this::getAsUserFullResponse).toList();
+    public List<UserResponse> getAllAsUserResponse(List<UserDb> userDbList) {
+        return userDbList.stream().map(this::getAsUserResponse).toList();
     }
 
     private static ProgramSchemeResponse getProgramSchemeResponse(ProgramSchemeDb programSchemeDb, UserDb creatorUserDb) {
@@ -178,16 +178,16 @@ public class ProgramSchemeManager {
         return result;
     }
 
-    public UserFullResponse getAsUserFullResponse(UserDb userDb) {
+    public UserResponse getAsUserResponse(UserDb userDb) {
         Map<UserProgramRole, List<ProgramSchemeDb>> fullUserDetailsRaw = getFullProgramSchemeDetails(userDb.getId());
         Map<UserProgramRole, List<ProgramSchemeResponse>> userProgramRoleToUserMap = new HashMap<>();
         fullUserDetailsRaw.forEach((userProgramRole, programSchemeDbList) -> userProgramRoleToUserMap.put(userProgramRole, getAllAsProgramSchemeResponse(programSchemeDbList)));
 
-        return getAsUserFullResponse(userDb, userProgramRoleToUserMap);
+        return getAsUserResponse(userDb, userProgramRoleToUserMap);
     }
 
-    private static UserFullResponse getAsUserFullResponse(UserDb userDb, Map<UserProgramRole, List<ProgramSchemeResponse>> userProgramRoleToUserMap) {
-        return UserFullResponse.builder()
+    private UserResponse getAsUserResponse(UserDb userDb, Map<UserProgramRole, List<ProgramSchemeResponse>> userProgramRoleToUserMap) {
+        UserResponse userResponse = UserResponse.builder()
                 .id(userDb.getId())
                 .userFeedback(userDb.getUserFeedback())
                 .hobbies(userDb.getHobbies())
@@ -208,6 +208,9 @@ public class ProgramSchemeManager {
                 .workingPosition(userDb.getWorkingPosition())
                 .experience(userDb.getExperience())
                 .username(userDb.getUsername())
+                .rating(userDb.getRating())
                 .build();
+        userService.addAllUserFilesToUserResponse(userResponse);
+        return userResponse;
     }
 }

@@ -135,12 +135,12 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
     public UserResponse toUserResponse(UserDb userDb) {
         UserResponse userResponse = new UserResponse();
         BeanUtils.copyProperties(userDb, userResponse);
-        List<UserFileDb> userFileDbList = userFileService.findAllByUserId(userDb.getId());
-        addAllToUserResponse(userFileDbList, userResponse);
+        addAllUserFilesToUserResponse(userResponse);
         return userResponse;
     }
 
-    private void addAllToUserResponse(List<UserFileDb> userFileDbList, UserResponse userResponse) {
+    public void addAllUserFilesToUserResponse(UserResponse userResponse) {
+        List<UserFileDb> userFileDbList = userFileService.findAllByUserId(userResponse.getId());
         userFileDbList.forEach(userFileDb -> userResponse.getKeyToFileIdsMap().add(userFileDb.getKey(), userFileDb.getFileId()));
     }
 
