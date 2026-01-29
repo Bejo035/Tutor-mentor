@@ -10,9 +10,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Data
 @Document(collection = "programScheme")
@@ -24,16 +21,12 @@ public class ProgramSchemeDb {
     private String id;
     private String title;
     private String description;
-    private Integer maxSize;
-    private RegistrationDates registrationDates;
     @JsonIgnore
     private String creatorUserId;
 
     public ProgramSchemeDb(ProgramSchemeRequest request) {
         this.title = request.getTitle();
         this.description = request.getDescription();
-        this.maxSize = request.getMaxSize();
-        this.registrationDates = request.getRegistrationDates();
     }
 
     public record RegistrationDates(LocalDateTime start, LocalDateTime end) {

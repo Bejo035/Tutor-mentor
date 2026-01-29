@@ -7,13 +7,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
 @Data
-@Document(collection = "program_participants")
-public class ProgramParticipant {
+@Document(collection = "course_participants")
+public class CourseParticipant {
     @Id
     private String id;
 
     private String userId;
-    private String programId;
+    private String courseId;
 
     private UserProgramRole role;
     private ParticipantStatus status = ParticipantStatus.PENDING;

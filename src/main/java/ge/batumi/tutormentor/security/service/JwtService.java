@@ -36,6 +36,7 @@ public class JwtService {
                 .withIssuedAt(Date.from(now))
                 .withExpiresAt(Date.from(expiry))
                 .withClaim("scope", String.join(" ", userDb.getRoles().stream().map(UserRole::name).toList()))
+                .withClaim("program_roles", userDb.getProgramRoles())
                 .sign(algorithm());
     }
 

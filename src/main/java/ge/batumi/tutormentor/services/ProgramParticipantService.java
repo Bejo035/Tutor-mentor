@@ -1,7 +1,7 @@
 package ge.batumi.tutormentor.services;
 
 import ge.batumi.tutormentor.model.db.ParticipantStatus;
-import ge.batumi.tutormentor.model.db.ProgramParticipant;
+import ge.batumi.tutormentor.model.db.CourseParticipant;
 import ge.batumi.tutormentor.model.db.UserProgramRole;
 import ge.batumi.tutormentor.repository.ProgramParticipantRepository;
 import org.springframework.stereotype.Service;
@@ -9,13 +9,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ProgramParticipantService extends ARepositoryService<ProgramParticipantRepository, ProgramParticipant, String> {
+public class ProgramParticipantService extends ARepositoryService<ProgramParticipantRepository, CourseParticipant, String> {
 
     ProgramParticipantService(ProgramParticipantRepository repository) {
         super(repository);
     }
 
-    public ProgramParticipant enroll(
+    public CourseParticipant enroll(
             String userId,
             String programId,
             UserProgramRole role
@@ -25,24 +25,24 @@ public class ProgramParticipantService extends ARepositoryService<ProgramPartici
                     throw new RuntimeException("User already enrolled");
                 });
 
-        ProgramParticipant participant = new ProgramParticipant();
+        CourseParticipant participant = new CourseParticipant();
         participant.setUserId(userId);
-        participant.setProgramId(programId);
+        participant.setCourseId(programId);
         participant.setRole(role);
         participant.setStatus(ParticipantStatus.PENDING);
 
         return repository.save(participant);
     }
 
-    public List<ProgramParticipant> getProgramsOfUser(String userId) {
+    public List<CourseParticipant> getCoursesOfUser(String userId) {
         return repository.findByUserId(userId);
     }
 
-    public List<ProgramParticipant> getUsersOfProgram(String programId) {
+    public List<CourseParticipant> getUsersOfProgram(String programId) {
         return repository.findByProgramId(programId);
     }
 
-    public List<ProgramParticipant> getUsersByRole(
+    public List<CourseParticipant> getUsersByRole(
             String programId,
             UserProgramRole role
     ) {

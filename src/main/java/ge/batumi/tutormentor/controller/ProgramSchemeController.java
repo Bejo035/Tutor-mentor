@@ -62,4 +62,10 @@ public class ProgramSchemeController {
     public ResponseEntity<List<ProgramSchemeResponse>> getAll() {
         return ResponseEntity.ok(programSchemeManager.getAllAsProgramSchemeResponse(programSchemeService.findAll()));
     }
+
+    @PreAuthorize("@security.hasProgramRole('TUTOR')")
+    @GetMapping
+    public ResponseEntity<?> asdasdasd(){
+
+    }
 }
