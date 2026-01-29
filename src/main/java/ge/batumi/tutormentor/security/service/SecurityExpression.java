@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component("security")
+@Component
 public class SecurityExpression {
 
     public boolean hasProgramRole(String role) {
