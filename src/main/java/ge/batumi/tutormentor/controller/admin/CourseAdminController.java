@@ -1,0 +1,87 @@
+package ge.batumi.tutormentor.controller.admin;
+
+import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
+import ge.batumi.tutormentor.manager.ProgramSchemeManager;
+import ge.batumi.tutormentor.model.db.Course;
+import ge.batumi.tutormentor.model.request.CourseRequest;
+import ge.batumi.tutormentor.model.response.CourseResponse;
+import ge.batumi.tutormentor.services.CourseService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+import java.util.List;
+
+/**
+ * REST controller for managing Course endpoints (Admin only).
+ */
+@RestController
+@RequestMapping("api/v1/admin/course")
+@CrossOrigin(origins = "*")
+@PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
+public class CourseAdminController {
+    private final CourseService courseService;
+    private final ProgramSchemeManager programSchemeManager;
+
+    /**
+     * Creates a new Course.
+     *
+     * @param request   The Course data.
+     * @param principal The authenticated user.
+     * @return The created Course.
+     */
+    @PostMapping
+    public ResponseEntity<Course> create(@RequestBody CourseRequest request, Principal principal) {
+        return ResponseEntity.ok(courseService.createCourse(request, principal));
+    }
+
+    /**
+     * Updates an existing Course by ID.
+     *
+     * @param id      The ID of the Course.
+     * @param request The updated Course data.
+     * @return The updated Course.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<Course> update(
+            @PathVariable String id,
+            @RequestBody CourseRequest request) throws ResourceNotFoundException {
+        return ResponseEntity.ok(courseService.updateCourse(id, request));
+    }
+
+    /**
+     * Retrieves all Courses.
+     *
+     * @return The list of CourseResponse objects.
+     */
+    @GetMapping
+    public ResponseEntity<List<CourseResponse>> getAll() {
+        return ResponseEntity.ok(programSchemeManager.getAllAsCourseResponse(courseService.findAll()));
+    }
+
+    /**
+     * Retrieves a Course by ID.
+     *
+     * @param id The ID of the Course.
+     * @return The corresponding CourseResponse.
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<CourseResponse> get(@PathVariable String id) throws ResourceNotFoundException {
+        Course course = courseService.getCourse(id);
+        return ResponseEntity.ok(programSchemeManager.getAllAsCourseResponse(List.of(course)).get(0));
+    }
+
+    /**
+     * Retrieves Courses by program scheme ID.
+     *
+     * @param programId The program scheme ID.
+     * @return The list of CourseResponse objects for the given program.
+     */
+    @GetMapping("/program/{programId}")
+    public ResponseEntity<List<CourseResponse>> getByProgramId(@PathVariable String programId) {
+        return ResponseEntity.ok(programSchemeManager.getAllAsCourseResponse(courseService.getCoursesByProgramId(programId)));
+    }
+}

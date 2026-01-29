@@ -11,9 +11,9 @@ public interface ProgramParticipantRepository extends MongoRepository<CoursePart
 
     List<CourseParticipant> findByUserId(String userId);
 
-    List<CourseParticipant> findByProgramId(String programId);
+    List<CourseParticipant> findByCourseId(String courseId);
 
-    List<CourseParticipant> findByProgramIdAndRole(String programId, UserProgramRole role);
+    List<CourseParticipant> findByCourseIdAndRole(String courseId, UserProgramRole role);
 
-    Optional<CourseParticipant> findByUserIdAndProgramId(String userId, String programId);
+    Optional<CourseParticipant> findByUserIdAndCourseId(String userId, String courseId);
 }

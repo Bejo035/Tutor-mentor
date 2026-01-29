@@ -13,8 +13,8 @@ public class RegisterRequest {
     private String email;
     private String username;
     private String password;
-    private UserRole userRole;
-    private UserProgramRole programRole;
+    private UserRole userRole = UserRole.STUDENT;
+    private UserProgramRole programRole = UserProgramRole.SEEKER;
     private String year;
     private String strengths;
     private String motivation;

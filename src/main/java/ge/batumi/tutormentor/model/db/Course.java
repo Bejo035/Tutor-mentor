@@ -21,5 +21,4 @@ public class Course {
     private String creatorUserId;
 
     private String programId;
-
 }

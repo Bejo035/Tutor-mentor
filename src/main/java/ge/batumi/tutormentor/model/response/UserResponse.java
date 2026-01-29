@@ -37,7 +37,7 @@ public class UserResponse {
     private String username;
     private boolean confirmed;
     private List<UserProgramRole> programRoles;
-    private Map<UserProgramRole, List<ProgramSchemeResponse>> programRoleToProgramSchemeMap;
+    private Map<UserProgramRole, List<CourseResponse>> programRoleToCourseMap;
     @JsonIgnore
     private MultiValueMap<String, String> keyToFileIdsMap = new LinkedMultiValueMap<>();
     private Integer rating;

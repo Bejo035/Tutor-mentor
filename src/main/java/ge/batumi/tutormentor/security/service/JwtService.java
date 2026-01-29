@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import ge.batumi.tutormentor.model.db.UserDb;
+import ge.batumi.tutormentor.model.db.UserProgramRole;
 import ge.batumi.tutormentor.model.db.UserRole;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class JwtService {
                 .withIssuedAt(Date.from(now))
                 .withExpiresAt(Date.from(expiry))
                 .withClaim("scope", String.join(" ", userDb.getRoles().stream().map(UserRole::name).toList()))
-                .withClaim("program_roles", userDb.getProgramRoles())
+                .withClaim("program_roles", userDb.getProgramRoles().stream().map(UserProgramRole::name).toList())
                 .sign(algorithm());
     }
 

@@ -17,17 +17,17 @@ public class ProgramParticipantService extends ARepositoryService<ProgramPartici
 
     public CourseParticipant enroll(
             String userId,
-            String programId,
+            String courseId,
             UserProgramRole role
     ) {
-        repository.findByUserIdAndProgramId(userId, programId)
+        repository.findByUserIdAndCourseId(userId, courseId)
                 .ifPresent(p -> {
                     throw new RuntimeException("User already enrolled");
                 });
 
         CourseParticipant participant = new CourseParticipant();
         participant.setUserId(userId);
-        participant.setCourseId(programId);
+        participant.setCourseId(courseId);
         participant.setRole(role);
         participant.setStatus(ParticipantStatus.PENDING);
 
@@ -38,14 +38,14 @@ public class ProgramParticipantService extends ARepositoryService<ProgramPartici
         return repository.findByUserId(userId);
     }
 
-    public List<CourseParticipant> getUsersOfProgram(String programId) {
-        return repository.findByProgramId(programId);
+    public List<CourseParticipant> getUsersOfCourse(String courseId) {
+        return repository.findByCourseId(courseId);
     }
 
     public List<CourseParticipant> getUsersByRole(
-            String programId,
+            String courseId,
             UserProgramRole role
     ) {
-        return repository.findByProgramIdAndRole(programId, role);
+        return repository.findByCourseIdAndRole(courseId, role);
     }
 }

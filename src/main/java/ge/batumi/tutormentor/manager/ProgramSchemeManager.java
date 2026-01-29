@@ -3,10 +3,8 @@ package ge.batumi.tutormentor.manager;
 import ge.batumi.tutormentor.exceptions.ExpectationsNotMet;
 import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import ge.batumi.tutormentor.model.db.*;
-import ge.batumi.tutormentor.model.response.ProgramSchemeFullResponse;
-import ge.batumi.tutormentor.model.response.ProgramSchemeResponse;
-import ge.batumi.tutormentor.model.response.UserData;
-import ge.batumi.tutormentor.model.response.UserResponse;
+import ge.batumi.tutormentor.model.response.*;
+import ge.batumi.tutormentor.services.CourseService;
 import ge.batumi.tutormentor.services.ProgramParticipantService;
 import ge.batumi.tutormentor.services.ProgramSchemeService;
 import ge.batumi.tutormentor.services.UserService;
@@ -33,59 +31,61 @@ import java.util.stream.Collectors;
 public class ProgramSchemeManager {
     private static final Logger LOGGER = LogManager.getLogger(ProgramSchemeManager.class);
     private final ProgramSchemeService programSchemeService;
+    private final CourseService courseService;
     private final UserService userService;
     private final ProgramParticipantService programParticipantService;
 
     /**
-     * Add user to programScheme and also update user's associated programSchemes.
+     * Add user to course and also update user's associated courses.
      *
-     * @param programSchemeId {@link ProgramSchemeDb} unique identifier to add user to.
-     * @param userId          {@link UserDb} unique identifier to add to {@link ProgramSchemeDb}.
+     * @param courseId        {@link Course} unique identifier to add user to.
+     * @param userId          {@link UserDb} unique identifier to add to {@link Course}.
      * @param userProgramRole {@link UserProgramRole} desired role to add user with.
-     * @return Updated {@link UserProgramRole} object;
-     * @throws ResourceNotFoundException If ether {@link UserDb} or {@link UserProgramRole} could not be found by specified ids.
+     * @return Updated {@link Course} object;
+     * @throws ResourceNotFoundException If either {@link UserDb} or {@link Course} could not be found by specified ids.
      */
-    public ProgramSchemeDb addUserToProgramScheme(String programSchemeId, String userId, UserProgramRole userProgramRole) throws ResourceNotFoundException, ExpectationsNotMet {
-        ProgramSchemeDb programSchemeDb = programSchemeService.findById(programSchemeId);
+    public Course addUserToCourse(String courseId, String userId, UserProgramRole userProgramRole) throws ResourceNotFoundException, ExpectationsNotMet {
+        Course course = courseService.findById(courseId);
 
-        ProgramSchemeDb.RegistrationDates registrationDates = programSchemeDb.getRegistrationDates();
+        ProgramSchemeDb.RegistrationDates registrationDates = course.getRegistrationDates();
 
         if (registrationDates != null) {
             if (LocalDateTime.now().isBefore(registrationDates.start())) {
-                throw new ExpectationsNotMet("Registration to this program not started yet.");
+                throw new ExpectationsNotMet("Registration to this course has not started yet.");
             }
 
             if (LocalDateTime.now().isAfter(registrationDates.end())) {
-                throw new ExpectationsNotMet("Registration to this program has ended.");
+                throw new ExpectationsNotMet("Registration to this course has ended.");
             }
         } else {
-            LOGGER.warn("Could not find registrationDates in programScheme with '{}' id", programSchemeDb.getId());
+            LOGGER.warn("Could not find registrationDates in course with '{}' id", course.getId());
         }
+
         UserDb userDb = userService.findById(userId);
         if (!userDb.getProgramRoles().contains(userProgramRole)) {
-            LOGGER.warn("User with id '%s' does not have permission to be added in program scheme as '%s'".formatted(userId, userProgramRole));
-            return programSchemeDb;
+            LOGGER.warn("User with id '%s' does not have permission to be added in course as '%s'".formatted(userId, userProgramRole));
+            return course;
         }
 
-        programParticipantService.enroll(userId, programSchemeId, userProgramRole);
+        programParticipantService.enroll(userId, courseId, userProgramRole);
 
-        LOGGER.info("Successfully added user (with id {}) to programScheme (with id {})", userId, programSchemeId);
-        return programSchemeDb;
+        LOGGER.info("Successfully added user (with id {}) to course (with id {})", userId, courseId);
+        return course;
     }
 
     /**
-     * Retrieves full user details (UserDb objects) for mentors, tutors, and seekers of a ProgramScheme.
+     * Retrieves full user details (UserDb objects) for mentors, tutors, and seekers of a Course.
      *
-     * @param programSchemeId The ProgramScheme id to get users for.
-     * @return A map containing lists of users grouped by their role in the scheme.
+     * @param courseId The Course id to get users for.
+     * @return A map containing lists of users grouped by their role in the course.
      */
-    public Map<UserProgramRole, List<UserDb>> getFullUserDetails(String programSchemeId) {
-        List<CourseParticipant> usersOfProgram = programParticipantService.getUsersOfProgram(programSchemeId);
-        Map<UserProgramRole, List<CourseParticipant>> programParticipantGroupedMap = usersOfProgram.stream().collect(Collectors.groupingBy(CourseParticipant::getRole));
+    public Map<UserProgramRole, List<UserDb>> getFullUserDetailsForCourse(String courseId) {
+        List<CourseParticipant> usersOfCourse = programParticipantService.getUsersOfCourse(courseId);
+        Map<UserProgramRole, List<CourseParticipant>> courseParticipantGroupedMap = usersOfCourse.stream().collect(Collectors.groupingBy(CourseParticipant::getRole));
         Map<UserProgramRole, List<UserDb>> result = new HashMap<>();
 
-        programParticipantGroupedMap.forEach((userProgramRole, programParticipants) -> {
-            List<String> userIds = programParticipants.stream().map(CourseParticipant::getUserId).toList();
+        courseParticipantGroupedMap.forEach((userProgramRole, courseParticipants) -> {
+            List<String> userIds = courseParticipants.stream().map(CourseParticipant::getUserId).toList();
             List<UserDb> allById = userService.findAllById(userIds);
             result.put(userProgramRole, allById);
         });
@@ -114,12 +114,10 @@ public class ProgramSchemeManager {
     private static ProgramSchemeResponse getProgramSchemeResponse(ProgramSchemeDb programSchemeDb, UserDb creatorUserDb) {
         return ProgramSchemeResponse.builder()
                 .id(programSchemeDb.getId())
-                .maxSize(programSchemeDb.getMaxSize())
                 .creatorUserData(
                         (creatorUserDb != null)
                                 ? new UserData(creatorUserDb.getId(), creatorUserDb.getName(), creatorUserDb.getSurname(), creatorUserDb.getWorkingPlace(), creatorUserDb.getWorkingPosition())
                                 : null)
-                .registrationDates(programSchemeDb.getRegistrationDates())
                 .description(programSchemeDb.getDescription())
                 .title(programSchemeDb.getTitle())
                 .build();
@@ -133,42 +131,39 @@ public class ProgramSchemeManager {
             creatorUserDb = null;
         }
 
-        Map<UserProgramRole, List<UserDb>> fullUserDetailsRaw = getFullUserDetails(programSchemeDb.getId());
-        Map<UserProgramRole, List<UserData>> userProgramRoleToUserMap = new HashMap<>();
-        fullUserDetailsRaw.forEach((userProgramRole, userDbs) -> userProgramRoleToUserMap.put(userProgramRole, userDbs.stream().map(UserDb::toUserData).toList()));
+        List<Course> courses = courseService.getCoursesByProgramId(programSchemeDb.getId());
+        List<CourseResponse> courseResponses = getAllAsCourseResponse(courses);
 
-        return getProgramSchemeFullResponse(programSchemeDb, creatorUserDb, userProgramRoleToUserMap);
+        return getProgramSchemeFullResponse(programSchemeDb, creatorUserDb, courseResponses);
     }
 
-    private static ProgramSchemeFullResponse getProgramSchemeFullResponse(ProgramSchemeDb programSchemeDb, UserDb creatorUserDb, Map<UserProgramRole, List<UserData>> userProgramRoleToUserMap) {
+    private static ProgramSchemeFullResponse getProgramSchemeFullResponse(ProgramSchemeDb programSchemeDb, UserDb creatorUserDb, List<CourseResponse> courses) {
         return ProgramSchemeFullResponse.builder()
                 .id(programSchemeDb.getId())
                 .creatorUserData(
                         (creatorUserDb != null)
                                 ? new UserData(creatorUserDb.getId(), creatorUserDb.getName(), creatorUserDb.getSurname(), creatorUserDb.getWorkingPlace(), creatorUserDb.getWorkingPosition())
                                 : null)
-                .registrationDates(programSchemeDb.getRegistrationDates())
                 .description(programSchemeDb.getDescription())
-                .maxSize(programSchemeDb.getMaxSize())
                 .title(programSchemeDb.getTitle())
-                .userProgramRoleToUserMap(userProgramRoleToUserMap)
+                .courses(courses)
                 .build();
     }
 
     /**
-     * Retrieves full user details (UserDb objects) for mentors, tutors, and seekers of a ProgramScheme.
+     * Retrieves full course details (Course objects) for a user.
      *
-     * @param userId The user id to retrieve program scheme details for.
-     * @return A map containing lists of users grouped by their role in the scheme.
+     * @param userId The user id to retrieve course details for.
+     * @return A map containing lists of courses grouped by the user's role in the course.
      */
     public Map<UserProgramRole, List<Course>> getFullCourseDetails(String userId) {
         List<CourseParticipant> usersOfCourse = programParticipantService.getCoursesOfUser(userId);
         Map<UserProgramRole, List<CourseParticipant>> courseParticipantGroupedMap = usersOfCourse.stream().collect(Collectors.groupingBy(CourseParticipant::getRole));
         Map<UserProgramRole, List<Course>> result = new HashMap<>();
 
-        courseParticipantGroupedMap.forEach((userProgramRole, programParticipants) -> {
-            List<String> programIds = programParticipants.stream().map(CourseParticipant::getCourseId).toList();
-            List<ProgramSchemeDb> allById = programSchemeService.findAllById(programIds);
+        courseParticipantGroupedMap.forEach((userProgramRole, courseParticipants) -> {
+            List<String> courseIds = courseParticipants.stream().map(CourseParticipant::getCourseId).toList();
+            List<Course> allById = courseService.findAllById(courseIds);
             result.put(userProgramRole, allById);
         });
 
@@ -176,14 +171,41 @@ public class ProgramSchemeManager {
     }
 
     public UserResponse getAsUserResponse(UserDb userDb) {
-        Map<UserProgramRole, List<ProgramSchemeDb>> fullUserDetailsRaw = getFullCourseDetails(userDb.getId());
-        Map<UserProgramRole, List<ProgramSchemeResponse>> userProgramRoleToUserMap = new HashMap<>();
-        fullUserDetailsRaw.forEach((userProgramRole, programSchemeDbList) -> userProgramRoleToUserMap.put(userProgramRole, getAllAsProgramSchemeResponse(programSchemeDbList)));
+        Map<UserProgramRole, List<Course>> fullCourseDetailsRaw = getFullCourseDetails(userDb.getId());
+        Map<UserProgramRole, List<CourseResponse>> userProgramRoleToCourseMap = new HashMap<>();
+        fullCourseDetailsRaw.forEach((userProgramRole, courseList) -> userProgramRoleToCourseMap.put(userProgramRole, getAllAsCourseResponse(courseList)));
 
-        return getAsUserResponse(userDb, userProgramRoleToUserMap);
+        return getAsUserResponse(userDb, userProgramRoleToCourseMap);
     }
 
-    private UserResponse getAsUserResponse(UserDb userDb, Map<UserProgramRole, List<ProgramSchemeResponse>> userProgramRoleToUserMap) {
+    public List<CourseResponse> getAllAsCourseResponse(List<Course> courseList) {
+        return courseList.stream().map(course -> {
+            UserDb creatorUserDb;
+            try {
+                creatorUserDb = userService.findById(course.getCreatorUserId());
+            } catch (ResourceNotFoundException | IllegalArgumentException e) {
+                creatorUserDb = null;
+            }
+
+            return getCourseResponse(course, creatorUserDb);
+        }).toList();
+    }
+
+    private static CourseResponse getCourseResponse(Course course, UserDb creatorUserDb) {
+        return CourseResponse.builder()
+                .id(course.getId())
+                .name(course.getName())
+                .maxSize(course.getMaxSize())
+                .registrationDates(course.getRegistrationDates())
+                .programId(course.getProgramId())
+                .creatorUserData(
+                        (creatorUserDb != null)
+                                ? new UserData(creatorUserDb.getId(), creatorUserDb.getName(), creatorUserDb.getSurname(), creatorUserDb.getWorkingPlace(), creatorUserDb.getWorkingPosition())
+                                : null)
+                .build();
+    }
+
+    private UserResponse getAsUserResponse(UserDb userDb, Map<UserProgramRole, List<CourseResponse>> userProgramRoleToCourseMap) {
         UserResponse userResponse = UserResponse.builder()
                 .id(userDb.getId())
                 .userFeedback(userDb.getUserFeedback())
@@ -200,7 +222,7 @@ public class ProgramSchemeManager {
                 .workingPlace(userDb.getWorkingPlace())
                 .year(userDb.getYear())
                 .mentoringCourseName(userDb.getMentoringCourseName())
-                .programRoleToProgramSchemeMap(userProgramRoleToUserMap)
+                .programRoleToCourseMap(userProgramRoleToCourseMap)
                 .email(userDb.getEmail())
                 .workingPosition(userDb.getWorkingPosition())
                 .experience(userDb.getExperience())
