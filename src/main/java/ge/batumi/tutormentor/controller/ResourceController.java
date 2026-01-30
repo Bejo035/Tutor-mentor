@@ -2,6 +2,7 @@ package ge.batumi.tutormentor.controller;
 
 import com.mongodb.client.gridfs.model.GridFSFile;
 import ge.batumi.tutormentor.services.ResourceService;
+import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/resource")
+@PermitAll
 public class ResourceController {
     private final ResourceService resourceService;
 
