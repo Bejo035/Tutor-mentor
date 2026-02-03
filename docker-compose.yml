@@ -22,8 +22,6 @@ services:
     container_name: mentortutor-app
     depends_on:
       - mongodb
-    ports:
-      - "8091:8080"
     networks:
       - mentortutor-network
 
