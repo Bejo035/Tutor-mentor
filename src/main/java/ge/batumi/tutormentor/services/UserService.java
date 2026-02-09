@@ -14,15 +14,13 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class UserService extends ARepositoryService<UserRepository, UserDb, String> implements UserDetailsService {
@@ -141,7 +139,7 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
 
     public void addAllUserFilesToUserResponse(UserResponse userResponse) {
         List<UserFileDb> userFileDbList = userFileService.findAllByUserId(userResponse.getId());
-        userFileDbList.forEach(userFileDb -> userResponse.getKeyToFileIdsMap().add(userFileDb.getKey(), userFileDb.getFileId()));
+        userFileDbList.forEach(userFileDb -> Optional.ofNullable(userResponse.getKeyToFileIdsMap()).orElse(new LinkedMultiValueMap<>()).add(userFileDb.getKey(), userFileDb.getFileId()));
     }
 
 }
