@@ -3,6 +3,7 @@ package ge.batumi.tutormentor.model.response;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import ge.batumi.tutormentor.model.db.UserProgramRole;
+import ge.batumi.tutormentor.model.db.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,6 +38,7 @@ public class UserResponse {
     private String username;
     private boolean confirmed;
     private List<UserProgramRole> programRoles;
+    private List<UserRole> roles;
     private Map<UserProgramRole, List<CourseResponse>> programRoleToCourseMap;
     @JsonIgnore
     private MultiValueMap<String, String> keyToFileIdsMap = new LinkedMultiValueMap<>();
