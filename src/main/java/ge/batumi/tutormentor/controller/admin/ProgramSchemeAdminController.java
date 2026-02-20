@@ -2,15 +2,17 @@ package ge.batumi.tutormentor.controller.admin;
 
 import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import ge.batumi.tutormentor.manager.ProgramSchemeManager;
-import ge.batumi.tutormentor.model.db.ProgramSchemeDb;
 import ge.batumi.tutormentor.model.request.ProgramSchemeRequest;
 import ge.batumi.tutormentor.model.response.ProgramSchemeFullResponse;
 import ge.batumi.tutormentor.model.response.ProgramSchemeResponse;
 import ge.batumi.tutormentor.services.ProgramSchemeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -34,9 +36,9 @@ public class ProgramSchemeAdminController {
      * @param request The ProgramScheme data.
      * @return The created ProgramScheme.
      */
-    @PostMapping
-    public ResponseEntity<ProgramSchemeDb> create(@RequestBody ProgramSchemeRequest request, Principal principal) {
-        return ResponseEntity.ok(programSchemeService.createProgramScheme(request, principal));
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProgramSchemeResponse> create(@RequestPart("data") ProgramSchemeRequest request, @RequestParam MultiValueMap<String, MultipartFile> files, Principal principal) {
+        return ResponseEntity.ok(programSchemeManager.getProgramSchemeResponse(programSchemeService.createProgramScheme(request, files, principal)));
     }
 
     /**
@@ -46,11 +48,12 @@ public class ProgramSchemeAdminController {
      * @param request The updated ProgramScheme data.
      * @return The updated ProgramScheme.
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<ProgramSchemeDb> update(
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProgramSchemeResponse> update(
             @PathVariable String id,
-            @RequestBody ProgramSchemeRequest request) throws ResourceNotFoundException {
-        return ResponseEntity.ok(programSchemeService.updateProgramScheme(id, request));
+            @RequestPart(value = "data", required = false) ProgramSchemeRequest request,
+            @RequestParam MultiValueMap<String, MultipartFile> files) throws ResourceNotFoundException {
+        return ResponseEntity.ok(programSchemeManager.getProgramSchemeResponse(programSchemeService.updateProgramScheme(id, request, files)));
     }
 
     /**

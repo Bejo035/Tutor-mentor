@@ -6,12 +6,13 @@ import ge.batumi.tutormentor.model.db.*;
 import ge.batumi.tutormentor.model.response.*;
 import ge.batumi.tutormentor.services.CourseService;
 import ge.batumi.tutormentor.services.ProgramParticipantService;
-import ge.batumi.tutormentor.services.ProgramSchemeService;
+import ge.batumi.tutormentor.services.ProgramSchemeFileService;
 import ge.batumi.tutormentor.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 @Component
 public class ProgramSchemeManager {
     private static final Logger LOGGER = LogManager.getLogger(ProgramSchemeManager.class);
-    private final ProgramSchemeService programSchemeService;
+    private final ProgramSchemeFileService programSchemeFileService;
     private final CourseService courseService;
     private final UserService userService;
     private final ProgramParticipantService programParticipantService;
@@ -95,24 +96,25 @@ public class ProgramSchemeManager {
 
 
     public List<ProgramSchemeResponse> getAllAsProgramSchemeResponse(List<ProgramSchemeDb> programSchemeDbList) {
-        return programSchemeDbList.stream().map(programSchemeDb -> {
-            UserDb creatorUserDb;
-            try {
-                creatorUserDb = userService.findById(programSchemeDb.getCreatorUserId());
-            } catch (ResourceNotFoundException | IllegalArgumentException e) {
-                creatorUserDb = null;
-            }
+        return programSchemeDbList.stream().map(this::getProgramSchemeResponse).toList();
+    }
 
-            return getProgramSchemeResponse(programSchemeDb, creatorUserDb);
-        }).toList();
+    public ProgramSchemeResponse getProgramSchemeResponse(ProgramSchemeDb programSchemeDb) {
+        UserDb creatorUserDb;
+        try {
+            creatorUserDb = userService.findById(programSchemeDb.getCreatorUserId());
+        } catch (ResourceNotFoundException | IllegalArgumentException e) {
+            creatorUserDb = null;
+        }
+        return getProgramSchemeResponse(programSchemeDb, creatorUserDb);
     }
 
     public List<UserResponse> getAllAsUserResponse(List<UserDb> userDbList) {
         return userDbList.stream().map(this::getAsUserResponse).toList();
     }
 
-    private static ProgramSchemeResponse getProgramSchemeResponse(ProgramSchemeDb programSchemeDb, UserDb creatorUserDb) {
-        return ProgramSchemeResponse.builder()
+    private ProgramSchemeResponse getProgramSchemeResponse(ProgramSchemeDb programSchemeDb, UserDb creatorUserDb) {
+        ProgramSchemeResponse programSchemeResponse = ProgramSchemeResponse.builder()
                 .id(programSchemeDb.getId())
                 .creatorUserData(
                         (creatorUserDb != null)
@@ -121,7 +123,22 @@ public class ProgramSchemeManager {
                 .description(programSchemeDb.getDescription())
                 .title(programSchemeDb.getTitle())
                 .build();
+        addAllProgramSchemeFilesToProgramSchemeResponse(programSchemeResponse);
+
+        return programSchemeResponse;
     }
+
+    public void addAllProgramSchemeFilesToProgramSchemeResponse(ProgramSchemeResponse programSchemeResponse) {
+        List<ProgramSchemeFileDb> programSchemeFileDbList = programSchemeFileService.findAllByProgramSchemeId(programSchemeResponse.getId());
+        programSchemeFileDbList.forEach(programSchemeFileDb -> {
+            if (programSchemeResponse.getKeyToFileIdsMap() == null) {
+                programSchemeResponse.setKeyToFileIdsMap(new LinkedMultiValueMap<>());
+            }
+
+            programSchemeResponse.getKeyToFileIdsMap().add(programSchemeFileDb.getKey(), programSchemeFileDb.getFileId());
+        });
+    }
+
 
     public ProgramSchemeFullResponse getAsProgramSchemeFullResponse(ProgramSchemeDb programSchemeDb) {
         UserDb creatorUserDb;

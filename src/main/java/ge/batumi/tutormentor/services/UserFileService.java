@@ -15,7 +15,7 @@ public class UserFileService extends ARepositoryService<UserFilesRepository, Use
         this.resourceService = resourceService;
     }
 
-    public List<UserFileDb> findUserIdAndKey(String id, String key) {
+    public List<UserFileDb> findByUserIdAndKey(String id, String key) {
         return repository.findByUserIdAndKey(id, key);
     }
 

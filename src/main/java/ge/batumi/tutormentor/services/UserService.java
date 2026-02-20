@@ -20,7 +20,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserService extends ARepositoryService<UserRepository, UserDb, String> implements UserDetailsService {
@@ -98,7 +101,7 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
 
         files.forEach(
                 (key, multipartFiles) -> {
-                    List<UserFileDb> userFileDbList = userFileService.findUserIdAndKey(userDb.getId(), key);
+                    List<UserFileDb> userFileDbList = userFileService.findByUserIdAndKey(userDb.getId(), key);
                     if (!userFileDbList.isEmpty()) {
                         userFileService.deleteAll(userFileDbList);
                     }
@@ -139,7 +142,12 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
 
     public void addAllUserFilesToUserResponse(UserResponse userResponse) {
         List<UserFileDb> userFileDbList = userFileService.findAllByUserId(userResponse.getId());
-        userFileDbList.forEach(userFileDb -> Optional.ofNullable(userResponse.getKeyToFileIdsMap()).orElse(new LinkedMultiValueMap<>()).add(userFileDb.getKey(), userFileDb.getFileId()));
+        userFileDbList.forEach(userFileDb -> {
+            if (userResponse.getKeyToFileIdsMap() == null) {
+                userResponse.setKeyToFileIdsMap(new LinkedMultiValueMap<>());
+            }
+            userResponse.getKeyToFileIdsMap().add(userFileDb.getKey(), userFileDb.getFileId());
+        });
     }
 
 }

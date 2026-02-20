@@ -1,9 +1,13 @@
 package ge.batumi.tutormentor.model.response;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 @Data
 @NoArgsConstructor
@@ -14,4 +18,11 @@ public class ProgramSchemeResponse {
     private String title;
     private String description;
     private UserData creatorUserData;
+    @JsonIgnore
+    private MultiValueMap<String, String> keyToFileIdsMap = new LinkedMultiValueMap<>();
+
+    @JsonAnyGetter
+    public MultiValueMap<String, String> getFlattenedMap() {
+        return keyToFileIdsMap;
+    }
 }
