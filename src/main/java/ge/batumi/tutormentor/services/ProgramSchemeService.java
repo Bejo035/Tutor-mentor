@@ -50,12 +50,12 @@ public class ProgramSchemeService extends ARepositoryService<ProgramSchemeReposi
         ProgramSchemeDb program = new ProgramSchemeDb(request);
         UserDb userDb = userService.loadUserByUsername(principal.getName());
         program.setCreatorUserId(userDb.getId());
-
+        program = repository.save(program);
         if (files != null && !files.isEmpty()) {
             updateProgramSchemeFiles(files, program);
         }
 
-        return repository.save(program);
+        return program;
     }
 
     private void updateProgramSchemeFiles(MultiValueMap<String, MultipartFile> files, ProgramSchemeDb program) {
@@ -116,13 +116,4 @@ public class ProgramSchemeService extends ARepositoryService<ProgramSchemeReposi
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ProgramScheme not found"));
     }
-
-    public ProgramSchemeDb save(ProgramSchemeDb programSchemeDb) {
-        return repository.save(programSchemeDb);
-    }
-
-    public List<ProgramSchemeDb> findAllById(List<String> userIds) {
-        return repository.findAllById(userIds);
-    }
-
 }

@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ProgramSchemeFilesRepository extends MongoRepository<ProgramSchemeFileDb, String> {
 
-    List<ProgramSchemeFileDb> findAllByProgramSchemeId(String userId);
+    List<ProgramSchemeFileDb> findAllByProgramSchemeId(String programId);
 
-    List<ProgramSchemeFileDb> findByProgramSchemeIdAndKey(String userId, String key);
+    List<ProgramSchemeFileDb> findByProgramSchemeIdAndKey(String programId, String key);
 }

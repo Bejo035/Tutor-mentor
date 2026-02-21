@@ -39,10 +39,10 @@ public class AuthService {
         }
 
         UserDb userDb = new UserDb(request);
+        userDb = userService.save(userDb);
         if (files != null && !files.isEmpty()) {
             userService.updateUserFiles(files, userDb);
         }
-        userDb = userService.save(userDb);
         LOGGER.info("User registered by '{}' id", userDb.getId());
 
         return generateResponse(userDb);
