@@ -11,6 +11,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
+/**
+ * MongoDB document representing a program scheme (mentoring program template).
+ */
 @Data
 @Document(collection = "programScheme")
 @AllArgsConstructor

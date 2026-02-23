@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Response DTO for a program scheme including its associated courses.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

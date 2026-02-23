@@ -1,9 +1,13 @@
 package ge.batumi.tutormentor.controller;
 
 import ge.batumi.tutormentor.manager.ProgramSchemeManager;
+import ge.batumi.tutormentor.model.db.ProgramSchemeDb;
 import ge.batumi.tutormentor.model.response.ProgramSchemeResponse;
 import ge.batumi.tutormentor.services.ProgramSchemeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +36,11 @@ public class ProgramSchemeController {
      * @return The corresponding ProgramSchemeResponses.
      */
     @GetMapping
-    public ResponseEntity<List<ProgramSchemeResponse>> getAll() {
-        return ResponseEntity.ok(programSchemeManager.getAllAsProgramSchemeResponse(programSchemeService.findAll()));
+    public ResponseEntity<Page<ProgramSchemeResponse>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Page<ProgramSchemeDb> schemePage = programSchemeService.findAll(PageRequest.of(page, size));
+        List<ProgramSchemeResponse> responses = programSchemeManager.getAllAsProgramSchemeResponse(schemePage.getContent());
+        return ResponseEntity.ok(new PageImpl<>(responses, schemePage.getPageable(), schemePage.getTotalElements()));
     }
 }

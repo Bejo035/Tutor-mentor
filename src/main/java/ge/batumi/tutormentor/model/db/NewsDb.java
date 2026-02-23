@@ -10,6 +10,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
+/**
+ * MongoDB document representing a news article.
+ */
 @Data
 @Document(collection = "news")
 @AllArgsConstructor

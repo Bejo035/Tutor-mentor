@@ -10,11 +10,18 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
+/**
+ * Configuration for the {@link JwtDecoder} bean that validates JWT tokens
+ * using an HMAC-SHA256 secret key and a composite token validator.
+ */
 @Configuration
 public class JwtDecoderConfig {
     @Value("${jwt.secret-key}")
     private String jwtSecret;
 
+    /**
+     * Creates a {@link JwtDecoder} with timestamp and blacklist validation.
+     */
     @Bean
     public JwtDecoder jwtDecoder(OAuth2TokenValidator<Jwt> tokenBlacklistValidator) {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(

@@ -7,6 +7,9 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * MongoDB repository for {@link CourseParticipant} entities with user/course lookups.
+ */
 public interface ProgramParticipantRepository extends MongoRepository<CourseParticipant, String> {
 
     List<CourseParticipant> findByUserId(String userId);

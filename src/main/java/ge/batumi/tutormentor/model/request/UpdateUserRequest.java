@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Request DTO for self-service user profile updates (excludes credentials and system roles).
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

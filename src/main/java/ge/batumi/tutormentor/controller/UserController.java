@@ -33,17 +33,26 @@ public class UserController {
 
     private final UserService userService;
 
+    /**
+     * Returns the authenticated user's full profile.
+     */
     @GetMapping("me")
     public ResponseEntity<UserResponse> me(Principal principal) {
-        return ResponseEntity.ok(userService.toUserResponse(userService.loadUserByUsername(principal.getName())));
+        return ResponseEntity.ok(userService.toUserResponse(userService.findByUsername(principal.getName())));
     }
 
+    /**
+     * Updates the authenticated user's profile and/or associated files.
+     */
     @PutMapping(value = "me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> meUpdate(@Valid @RequestPart(value = "data", required = false) UpdateUserRequest request,
                                                  @RequestParam MultiValueMap<String, MultipartFile> files, Principal principal) throws ResourceNotFoundException {
         return ResponseEntity.ok(userService.toUserResponse(userService.updateUser(principal, request, files)));
     }
 
+    /**
+     * Returns public profile data for all mentors and tutors.
+     */
     @GetMapping("mentors")
     public ResponseEntity<List<UserPublicResponse>> getMentors() {
         return ResponseEntity.ok(userService.getMentorsAndTutorsPublic());

@@ -8,6 +8,9 @@ import ge.batumi.tutormentor.model.response.CourseResponse;
 import ge.batumi.tutormentor.services.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -59,8 +62,12 @@ public class CourseAdminController {
      * @return The list of CourseResponse objects.
      */
     @GetMapping
-    public ResponseEntity<List<CourseResponse>> getAll() {
-        return ResponseEntity.ok(programSchemeManager.getAllAsCourseResponse(courseService.findAll()));
+    public ResponseEntity<Page<CourseResponse>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Page<Course> coursePage = courseService.findAll(PageRequest.of(page, size));
+        List<CourseResponse> responses = programSchemeManager.getAllAsCourseResponse(coursePage.getContent());
+        return ResponseEntity.ok(new PageImpl<>(responses, coursePage.getPageable(), coursePage.getTotalElements()));
     }
 
     /**

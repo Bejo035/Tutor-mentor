@@ -14,6 +14,9 @@ import org.springframework.util.MultiValueMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Response DTO for detailed user data including profile, roles, course participation, and file references.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

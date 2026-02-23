@@ -28,6 +28,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private final Map<String, Deque<Long>> requestCounts = new ConcurrentHashMap<>();
 
+    /**
+     * Applies rate limiting to login and refresh endpoints; passes all other requests through unchanged.
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {

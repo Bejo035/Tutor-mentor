@@ -14,6 +14,9 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * Service responsible for creating, validating, and extracting claims from JWT tokens.
+ */
 @Service
 public class JwtService {
 
@@ -30,6 +33,9 @@ public class JwtService {
         return Algorithm.HMAC256(jwtSecret);
     }
 
+    /**
+     * Generates a short-lived access token containing roles and program roles.
+     */
     public String generateAccessToken(UserDb userDb) {
         Instant now = Instant.now();
         Instant expiry = now.plusSeconds(accessTokenExpirationMinutes * 60);
@@ -44,6 +50,9 @@ public class JwtService {
                 .sign(algorithm());
     }
 
+    /**
+     * Generates a long-lived refresh token.
+     */
     public String generateRefreshToken(UserDb userDb) {
         Instant now = Instant.now();
         Instant expiry = now.plusSeconds(refreshTokenExpirationDays * 24 * 60 * 60);
@@ -57,6 +66,9 @@ public class JwtService {
                 .sign(algorithm());
     }
 
+    /**
+     * Returns {@code true} if the given token is a valid, non-expired refresh token.
+     */
     public boolean isRefreshTokenValid(String token) {
         try {
             JWT.require(algorithm()).withClaim("type", "refresh").build().verify(token);
@@ -66,15 +78,24 @@ public class JwtService {
         }
     }
 
+    /**
+     * Extracts the username (subject) from a verified refresh token.
+     */
     public String getUsernameFromRefreshToken(String token) {
         return JWT.require(algorithm()).withClaim("type", "refresh").build().verify(token).getSubject();
     }
 
+    /**
+     * Extracts the JWT ID (jti) claim from a token without full verification.
+     */
     public String getJtiFromToken(String token) {
         DecodedJWT decoded = JWT.decode(token);
         return decoded.getId();
     }
 
+    /**
+     * Extracts the expiration instant from a token without full verification.
+     */
     public Instant getExpirationFromToken(String token) {
         DecodedJWT decoded = JWT.decode(token);
         return decoded.getExpiresAtAsInstant();

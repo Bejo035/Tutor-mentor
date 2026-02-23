@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -94,11 +96,25 @@ public class ProgramSchemeManager {
         return result;
     }
 
-
+    /**
+     * Converts a list of {@link ProgramSchemeDb} entities to response DTOs, batch-fetching creator user data.
+     */
     public List<ProgramSchemeResponse> getAllAsProgramSchemeResponse(List<ProgramSchemeDb> programSchemeDbList) {
-        return programSchemeDbList.stream().map(this::getProgramSchemeResponse).toList();
+        List<String> creatorIds = programSchemeDbList.stream()
+                .map(ProgramSchemeDb::getCreatorUserId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        Map<String, UserDb> creatorMap = userService.findAllById(creatorIds).stream()
+                .collect(Collectors.toMap(UserDb::getId, Function.identity()));
+        return programSchemeDbList.stream()
+                .map(ps -> getProgramSchemeResponse(ps, creatorMap.get(ps.getCreatorUserId())))
+                .toList();
     }
 
+    /**
+     * Converts a single {@link ProgramSchemeDb} entity to a response DTO, looking up the creator user.
+     */
     public ProgramSchemeResponse getProgramSchemeResponse(ProgramSchemeDb programSchemeDb) {
         UserDb creatorUserDb;
         try {
@@ -109,6 +125,9 @@ public class ProgramSchemeManager {
         return getProgramSchemeResponse(programSchemeDb, creatorUserDb);
     }
 
+    /**
+     * Converts a list of {@link UserDb} entities to {@link UserResponse} DTOs with course details.
+     */
     public List<UserResponse> getAllAsUserResponse(List<UserDb> userDbList) {
         return userDbList.stream().map(this::getAsUserResponse).toList();
     }
@@ -128,6 +147,9 @@ public class ProgramSchemeManager {
         return programSchemeResponse;
     }
 
+    /**
+     * Populates the file-key-to-file-ID map on the given {@link ProgramSchemeResponse} from stored file records.
+     */
     public void addAllProgramSchemeFilesToProgramSchemeResponse(ProgramSchemeResponse programSchemeResponse) {
         List<ProgramSchemeFileDb> programSchemeFileDbList = programSchemeFileService.findAllByProgramSchemeId(programSchemeResponse.getId());
         programSchemeFileDbList.forEach(programSchemeFileDb -> {
@@ -140,6 +162,9 @@ public class ProgramSchemeManager {
     }
 
 
+    /**
+     * Converts a {@link ProgramSchemeDb} to a full response DTO including its associated courses.
+     */
     public ProgramSchemeFullResponse getAsProgramSchemeFullResponse(ProgramSchemeDb programSchemeDb) {
         UserDb creatorUserDb;
         try {
@@ -187,6 +212,9 @@ public class ProgramSchemeManager {
         return result;
     }
 
+    /**
+     * Converts a {@link UserDb} entity to a {@link UserResponse} DTO with course participation details.
+     */
     public UserResponse getAsUserResponse(UserDb userDb) {
         Map<UserProgramRole, List<Course>> fullCourseDetailsRaw = getFullCourseDetails(userDb.getId());
         Map<UserProgramRole, List<CourseResponse>> userProgramRoleToCourseMap = new HashMap<>();
@@ -195,17 +223,20 @@ public class ProgramSchemeManager {
         return getAsUserResponse(userDb, userProgramRoleToCourseMap);
     }
 
+    /**
+     * Converts a list of {@link Course} entities to response DTOs, batch-fetching creator user data.
+     */
     public List<CourseResponse> getAllAsCourseResponse(List<Course> courseList) {
-        return courseList.stream().map(course -> {
-            UserDb creatorUserDb;
-            try {
-                creatorUserDb = userService.findById(course.getCreatorUserId());
-            } catch (ResourceNotFoundException | IllegalArgumentException e) {
-                creatorUserDb = null;
-            }
-
-            return getCourseResponse(course, creatorUserDb);
-        }).toList();
+        List<String> creatorIds = courseList.stream()
+                .map(Course::getCreatorUserId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        Map<String, UserDb> creatorMap = userService.findAllById(creatorIds).stream()
+                .collect(Collectors.toMap(UserDb::getId, Function.identity()));
+        return courseList.stream()
+                .map(course -> getCourseResponse(course, creatorMap.get(course.getCreatorUserId())))
+                .toList();
     }
 
     private static CourseResponse getCourseResponse(Course course, UserDb creatorUserDb) {

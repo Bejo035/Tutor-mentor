@@ -23,6 +23,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 
+/**
+ * Spring Security configuration for the stateless JWT-based API.
+ * Defines the filter chain, authentication converter, token blacklist validation, and password encoding.
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -31,6 +35,9 @@ public class SecurityConfig {
     private final RateLimitFilter rateLimitFilter;
     private final TokenBlacklistService tokenBlacklistService;
 
+    /**
+     * Configures the HTTP security filter chain with CSRF disabled, stateless sessions, security headers, and OAuth2 JWT resource server.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -55,6 +62,9 @@ public class SecurityConfig {
                 .build();
     }
 
+    /**
+     * Returns a token validator that rejects JWTs whose JTI has been blacklisted (revoked).
+     */
     @Bean
     public OAuth2TokenValidator<Jwt> tokenBlacklistValidator() {
         return token -> {
@@ -78,6 +88,9 @@ public class SecurityConfig {
         return jwtConverter;
     }
 
+    /**
+     * Provides the BCrypt password encoder bean used for hashing and verifying passwords.
+     */
     @Bean
     public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

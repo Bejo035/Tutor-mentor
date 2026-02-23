@@ -10,6 +10,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Request DTO for new user registration with credentials, roles, and profile data.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

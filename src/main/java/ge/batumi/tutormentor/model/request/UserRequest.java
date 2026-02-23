@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Request DTO for admin-level user creation and updates with full field access.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

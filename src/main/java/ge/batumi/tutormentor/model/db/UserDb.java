@@ -1,31 +1,32 @@
 package ge.batumi.tutormentor.model.db;
 
 
+import ge.batumi.tutormentor.exceptions.BadRequestException;
 import ge.batumi.tutormentor.model.request.RegisterRequest;
 import ge.batumi.tutormentor.model.request.UserRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
+/**
+ * MongoDB document representing a registered user, including profile data, roles, and credentials.
+ */
 @Document(collection = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDb implements UserDetails {
+public class UserDb {
     @Id
     private String id;
+    @Indexed(unique = true)
     private String email;
     private String year;
     private String strengths;
@@ -41,6 +42,7 @@ public class UserDb implements UserDetails {
     private String courseDescription;
     private String expectations;
     private String hobbies;
+    @Indexed(unique = true)
     private String username;
     private boolean confirmed = false;
     private String password;
@@ -52,7 +54,7 @@ public class UserDb implements UserDetails {
         BeanUtils.copyProperties(request, this);
     }
 
-    public UserDb(RegisterRequest request) throws BadRequestException {
+    public UserDb(RegisterRequest request) {
         if (request.getUserRole().equals(UserRole.ADMIN)) {
             throw new BadRequestException("'userRole' can only be %s".formatted(Arrays.stream(UserRole.values()).filter(userRole -> userRole != UserRole.ADMIN).map(UserRole::toString).toList()));
         }
@@ -61,28 +63,4 @@ public class UserDb implements UserDetails {
         programRoles.add(request.getProgramRole());
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream().map(UserRole::name).map(SimpleGrantedAuthority::new).toList();
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
-    }
 }

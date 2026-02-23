@@ -12,12 +12,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * REST controller for serving uploaded file resources from GridFS.
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/resource")
 public class ResourceController {
     private final ResourceService resourceService;
 
+    /**
+     * Returns a file resource by its GridFS ID with the appropriate content type.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Resource> getResource(@PathVariable String id) {
 

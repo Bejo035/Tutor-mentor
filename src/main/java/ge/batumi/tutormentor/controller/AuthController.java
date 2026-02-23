@@ -8,7 +8,6 @@ import ge.batumi.tutormentor.services.AuthService;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -18,6 +17,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
+/**
+ * REST controller for authentication endpoints (login, register, refresh, logout).
+ */
 @Controller
 @RequestMapping("api/v1/auth")
 @RequiredArgsConstructor
@@ -26,23 +28,35 @@ import java.util.Map;
 public class AuthController {
     private final AuthService authService;
 
+    /**
+     * Authenticates a user and returns JWT tokens.
+     */
     @PostMapping("login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) throws BadRequestException {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    /**
+     * Registers a new user with optional file uploads and returns JWT tokens.
+     */
     @PostMapping(value = "register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AuthResponse> register(@Valid @RequestPart("data") RegisterRequest request,
                                                  @RequestParam MultiValueMap<String, MultipartFile> files
-    ) throws BadRequestException {
+    ) {
         return ResponseEntity.ok(authService.register(request, files));
     }
 
+    /**
+     * Issues new JWT tokens using a valid refresh token.
+     */
     @PostMapping("refresh")
     public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshRequest request) {
         return ResponseEntity.ok(authService.refresh(request));
     }
 
+    /**
+     * Revokes the provided access and/or refresh tokens.
+     */
     @PostMapping("logout")
     public ResponseEntity<?> logout(@RequestHeader(value = "Authorization", required = false) String authHeader,
                                     @RequestBody(required = false) RefreshRequest refreshRequest) {

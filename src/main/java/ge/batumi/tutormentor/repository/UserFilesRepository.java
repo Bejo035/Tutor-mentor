@@ -5,6 +5,9 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
+/**
+ * MongoDB repository for {@link UserFileDb} entities with user-based lookups.
+ */
 public interface UserFilesRepository extends MongoRepository<UserFileDb, String> {
 
     List<UserFileDb> findAllByUserId(String userId);

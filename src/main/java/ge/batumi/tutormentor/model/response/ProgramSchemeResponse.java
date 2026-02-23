@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+/**
+ * Response DTO for a program scheme summary with creator data and file references.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

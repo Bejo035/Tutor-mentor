@@ -7,9 +7,15 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * Custom SpEL security expressions available via {@code @securityExpression} in {@code @PreAuthorize}.
+ */
 @Component
 public class SecurityExpression {
 
+    /**
+     * Returns {@code true} if the authenticated JWT contains the given program role claim.
+     */
     public boolean hasProgramRole(String role) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 

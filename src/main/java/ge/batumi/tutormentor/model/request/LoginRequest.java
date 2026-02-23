@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Request DTO for user authentication containing username and password.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -4,8 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+/**
+ * MongoDB document linking a GridFS file to a news article by key.
+ */
 @Document(collection = "newsFiles")
 @Data
 @NoArgsConstructor
@@ -14,6 +18,7 @@ public class NewsFileDb {
     @Id
     private String id;
 
+    @Indexed
     private String newsId;
     private String fileId;
     private String key;

@@ -3,14 +3,14 @@ package ge.batumi.tutormentor.controller;
 import ge.batumi.tutormentor.model.response.NewsResponse;
 import ge.batumi.tutormentor.services.NewsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+/**
+ * Public REST controller for retrieving news articles.
+ */
 @RestController
 @RequestMapping("api/v1/news")
 @CrossOrigin(origins = "*")
@@ -18,8 +18,13 @@ import java.util.List;
 public class NewsController {
     private final NewsService newsService;
 
+    /**
+     * Returns a paginated list of news articles.
+     */
     @GetMapping
-    public ResponseEntity<List<NewsResponse>> getNews() {
-        return ResponseEntity.ok(newsService.getAllAsNewsResponse());
+    public ResponseEntity<Page<NewsResponse>> getNews(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(newsService.getAllAsNewsResponse(PageRequest.of(page, size)));
     }
 }

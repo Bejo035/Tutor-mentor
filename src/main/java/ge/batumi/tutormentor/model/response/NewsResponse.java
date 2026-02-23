@@ -11,6 +11,9 @@ import org.springframework.util.MultiValueMap;
 
 import java.time.LocalDateTime;
 
+/**
+ * Response DTO for a news article including file references.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

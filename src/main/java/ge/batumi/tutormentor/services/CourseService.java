@@ -7,7 +7,6 @@ import ge.batumi.tutormentor.model.request.CourseRequest;
 import ge.batumi.tutormentor.repository.CourseRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -23,7 +22,6 @@ public class CourseService extends ARepositoryService<CourseRepository, Course, 
     private static final Logger LOGGER = LogManager.getLogger(CourseService.class);
     private final UserService userService;
 
-    @Autowired
     public CourseService(CourseRepository repository, UserService userService) {
         super(repository);
         this.userService = userService;
@@ -44,7 +42,7 @@ public class CourseService extends ARepositoryService<CourseRepository, Course, 
         course.setRegistrationDates(request.getRegistrationDates());
         course.setProgramId(request.getProgramId());
 
-        UserDb userDb = userService.loadUserByUsername(principal.getName());
+        UserDb userDb = userService.findByUsername(principal.getName());
         course.setCreatorUserId(userDb.getId());
 
         return repository.save(course);

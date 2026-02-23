@@ -9,47 +9,65 @@ import ge.batumi.tutormentor.model.request.UserRequest;
 import ge.batumi.tutormentor.model.response.UserPublicResponse;
 import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.repository.UserRepository;
+import ge.batumi.tutormentor.security.UserDetailsAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Service layer for user management including CRUD, file uploads, and Spring Security integration.
+ */
 @Service
 public class UserService extends ARepositoryService<UserRepository, UserDb, String> implements UserDetailsService {
     private static final Logger LOGGER = LogManager.getLogger(UserService.class);
-    private final ResourceService resourceService;
     private final UserFileService userFileService;
+    private final FileUploadHelper fileUploadHelper;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository repository, ResourceService resourceService, UserFileService userFileService, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository repository, UserFileService userFileService, FileUploadHelper fileUploadHelper, PasswordEncoder passwordEncoder) {
         super(repository);
-        this.resourceService = resourceService;
         this.userFileService = userFileService;
+        this.fileUploadHelper = fileUploadHelper;
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Persists the given user entity and returns the saved instance.
+     */
     public UserDb save(UserDb userDb) {
         return repository.save(userDb);
     }
 
+    /**
+     * Creates a new user from the given request, encoding the password.
+     */
     public UserDb addUser(UserRequest request) {
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         return repository.save(new UserDb(request));
     }
 
+    /**
+     * Updates an existing user by ID (admin use).
+     *
+     * @param id      the user ID.
+     * @param request the updated user data.
+     * @return the updated user.
+     * @throws ResourceNotFoundException if no user exists for the given ID.
+     */
     public UserDb updateUser(String id, UserRequest request) throws ResourceNotFoundException {
         UserDb userDb = findById(id);
         if (request.getPassword() != null) {
@@ -59,8 +77,18 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
         return repository.save(userDb);
     }
 
+    /**
+     * Updates the authenticated user's profile and optionally replaces associated files.
+     *
+     * @param userPrincipal the authenticated user principal.
+     * @param request       the updated profile data, or {@code null} to skip.
+     * @param files         optional files to upload/replace.
+     * @return the updated user.
+     * @throws ResourceNotFoundException if the user cannot be found by username.
+     */
+    @Transactional // requires MongoDB replica set
     public UserDb updateUser(Principal userPrincipal, UpdateUserRequest request, MultiValueMap<String, MultipartFile> files) throws ResourceNotFoundException {
-        UserDb userDb = loadUserByUsername(userPrincipal.getName());
+        UserDb userDb = findByUsername(userPrincipal.getName());
         if (userDb == null) {
             throw new ResourceNotFoundException("Could not find user for '%s' username".formatted(userPrincipal.getName()));
         }
@@ -74,26 +102,63 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
         return repository.save(userDb);
     }
 
+    /**
+     * Returns all users matching the given IDs.
+     */
     public List<UserDb> findAllById(List<String> userIds) {
         return repository.findAllById(userIds);
     }
 
+    /**
+     * Deletes a user by ID.
+     */
     public void deleteUser(String id) {
         repository.deleteById(id);
     }
 
+    /**
+     * Checks whether a user with the given email already exists.
+     */
     public boolean existsByEmail(String email) {
         return repository.existsByEmail(email);
     }
 
+    /**
+     * Checks whether a user with the given username already exists.
+     */
     public boolean existsByUsername(String username) {
         return repository.existsByUsername(username);
     }
 
-    public UserDb loadUserByUsername(String username) {
+    /**
+     * Looks up a user entity by username (for internal use).
+     *
+     * @param username the username.
+     * @return the {@link UserDb}, or {@code null} if not found.
+     */
+    public UserDb findByUsername(String username) {
         return repository.findByUsername(username);
     }
 
+    /**
+     * {@inheritDoc} Loads a {@link UserDetailsAdapter} for Spring Security authentication.
+     */
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserDb userDb = repository.findByUsername(username);
+        if (userDb == null) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+        return new UserDetailsAdapter(userDb);
+    }
+
+    /**
+     * Confirms a user account.
+     *
+     * @param id the user ID.
+     * @return {@code true} if the user was confirmed, {@code false} if already confirmed.
+     * @throws ResourceNotFoundException if no user exists for the given ID.
+     */
     public boolean confirmUser(String id) throws ResourceNotFoundException {
         UserDb userDb = findById(id);
         if (userDb.isConfirmed()) {
@@ -104,35 +169,30 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
         return true;
     }
 
+    /**
+     * Uploads and associates files with a user, replacing any existing files for the same keys.
+     *
+     * @param files  the multipart files grouped by key.
+     * @param userDb the user to associate files with.
+     */
     public void updateUserFiles(MultiValueMap<String, MultipartFile> files, UserDb userDb) {
-        List<UserFileDb> userFileDbListToSave = new ArrayList<>();
-
-        files.forEach(
-                (key, multipartFiles) -> {
-                    List<UserFileDb> userFileDbList = userFileService.findByUserIdAndKey(userDb.getId(), key);
-                    if (!userFileDbList.isEmpty()) {
-                        userFileService.deleteAll(userFileDbList);
+        fileUploadHelper.uploadFiles(
+                files,
+                UserFileDb::new,
+                fileDb -> fileDb.setUserId(userDb.getId()),
+                (key, _k) -> {
+                    List<UserFileDb> existing = userFileService.findByUserIdAndKey(userDb.getId(), key);
+                    if (!existing.isEmpty()) {
+                        userFileService.deleteAll(existing);
                     }
-                    userFileDbListToSave.addAll(getNewUserFileDbList(key, multipartFiles));
-                }
+                },
+                userFileService::saveAll
         );
-        userFileDbListToSave.forEach(userFileDb -> userFileDb.setUserId(userDb.getId()));
-        userFileService.saveAll(userFileDbListToSave);
     }
 
-    private List<UserFileDb> getNewUserFileDbList(String key, List<MultipartFile> multipartFileList) {
-        List<UserFileDb> userFileDbListToSave = new ArrayList<>();
-        multipartFileList.forEach(file -> {
-            try {
-                ObjectId fileId = resourceService.uploadFile(file);
-                userFileDbListToSave.add(new UserFileDb(fileId.toString(), key));
-            } catch (IOException e) {
-                LOGGER.warn("Error while uploading file to database.");
-            }
-        });
-        return userFileDbListToSave;
-    }
-
+    /**
+     * Returns public profile data for all users who have a MENTOR or TUTOR program role.
+     */
     public List<UserPublicResponse> getMentorsAndTutorsPublic() {
         Set<UserDb> result = new HashSet<>(repository.findAllByProgramRolesContains(UserProgramRole.MENTOR));
         result.addAll(repository.findAllByProgramRolesContains(UserProgramRole.TUTOR));
@@ -140,6 +200,9 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
         return result.stream().map(this::toUserPublicResponse).toList();
     }
 
+    /**
+     * Converts a {@link UserDb} entity to a {@link UserResponse} DTO, including file mappings.
+     */
     public UserResponse toUserResponse(UserDb userDb) {
         UserResponse userResponse = new UserResponse();
         BeanUtils.copyProperties(userDb, userResponse);
@@ -147,6 +210,9 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
         return userResponse;
     }
 
+    /**
+     * Converts a {@link UserDb} entity to a public-facing {@link UserPublicResponse} DTO.
+     */
     public UserPublicResponse toUserPublicResponse(UserDb userDb) {
         UserPublicResponse response = new UserPublicResponse();
         response.setId(userDb.getId());
@@ -165,6 +231,9 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
         return response;
     }
 
+    /**
+     * Populates file ID mappings on an existing {@link UserResponse}.
+     */
     public void addAllUserFilesToUserResponse(UserResponse userResponse) {
         List<UserFileDb> userFileDbList = userFileService.findAllByUserId(userResponse.getId());
         userFileDbList.forEach(userFileDb -> {

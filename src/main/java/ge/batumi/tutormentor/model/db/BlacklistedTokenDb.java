@@ -9,6 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
+/**
+ * MongoDB document representing a revoked JWT token, with TTL-based automatic expiration.
+ */
 @Document(collection = "blacklistedTokens")
 @Data
 @NoArgsConstructor
@@ -17,6 +20,7 @@ public class BlacklistedTokenDb {
     @Id
     private String id;
 
+    @Indexed
     private String tokenId;
 
     @Indexed(expireAfter = "0s")

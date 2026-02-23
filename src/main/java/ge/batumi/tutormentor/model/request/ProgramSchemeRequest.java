@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Request DTO for creating or updating a program scheme.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
