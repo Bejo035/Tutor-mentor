@@ -8,6 +8,7 @@ import ge.batumi.tutormentor.model.db.UserProgramRole;
 import ge.batumi.tutormentor.model.request.CourseRequest;
 import ge.batumi.tutormentor.model.response.CourseResponse;
 import ge.batumi.tutormentor.services.CourseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,7 +41,7 @@ public class CourseController {
      */
     @PostMapping
     @PreAuthorize("@securityExpression.hasProgramRole('MENTOR') or @securityExpression.hasProgramRole('TUTOR')")
-    public ResponseEntity<Course> create(@RequestBody CourseRequest request, Principal principal) {
+    public ResponseEntity<Course> create(@Valid @RequestBody CourseRequest request, Principal principal) {
         return ResponseEntity.ok(courseService.createCourse(request, principal));
     }
 

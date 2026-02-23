@@ -5,6 +5,7 @@ import ge.batumi.tutormentor.manager.ProgramSchemeManager;
 import ge.batumi.tutormentor.model.request.UserRequest;
 import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.services.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,12 +34,12 @@ public class UserAdminController {
     }
 
     @PostMapping
-    public UserResponse addUser(@RequestBody UserRequest request) {
+    public UserResponse addUser(@Valid @RequestBody UserRequest request) {
         return programSchemeManager.getAsUserResponse(userService.addUser(request));
     }
 
     @PutMapping("{id}")
-    public UserResponse updateUser(@PathVariable String id, @RequestBody UserRequest request) throws ResourceNotFoundException {
+    public UserResponse updateUser(@PathVariable String id, @Valid @RequestBody UserRequest request) throws ResourceNotFoundException {
         return programSchemeManager.getAsUserResponse(userService.updateUser(id, request));
     }
 

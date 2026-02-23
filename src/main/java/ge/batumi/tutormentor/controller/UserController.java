@@ -2,8 +2,10 @@ package ge.batumi.tutormentor.controller;
 
 import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import ge.batumi.tutormentor.model.request.UpdateUserRequest;
+import ge.batumi.tutormentor.model.response.UserPublicResponse;
 import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.services.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,13 +39,13 @@ public class UserController {
     }
 
     @PutMapping(value = "me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UserResponse> meUpdate(@RequestPart(value = "data", required = false) UpdateUserRequest request,
+    public ResponseEntity<UserResponse> meUpdate(@Valid @RequestPart(value = "data", required = false) UpdateUserRequest request,
                                                  @RequestParam MultiValueMap<String, MultipartFile> files, Principal principal) throws ResourceNotFoundException {
         return ResponseEntity.ok(userService.toUserResponse(userService.updateUser(principal, request, files)));
     }
 
     @GetMapping("mentors")
-    public ResponseEntity<List<UserResponse>> getMentors() {
-        return ResponseEntity.ok(userService.getMentorsAndTutors());
+    public ResponseEntity<List<UserPublicResponse>> getMentors() {
+        return ResponseEntity.ok(userService.getMentorsAndTutorsPublic());
     }
 }

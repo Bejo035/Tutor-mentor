@@ -3,6 +3,7 @@ package ge.batumi.tutormentor.security.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import ge.batumi.tutormentor.model.db.UserDb;
 import ge.batumi.tutormentor.model.db.UserProgramRole;
 import ge.batumi.tutormentor.model.db.UserRole;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 public class JwtService {
@@ -33,6 +35,7 @@ public class JwtService {
         Instant expiry = now.plusSeconds(accessTokenExpirationMinutes * 60);
 
         return JWT.create()
+                .withJWTId(UUID.randomUUID().toString())
                 .withSubject(userDb.getUsername())
                 .withIssuedAt(Date.from(now))
                 .withExpiresAt(Date.from(expiry))
@@ -46,6 +49,7 @@ public class JwtService {
         Instant expiry = now.plusSeconds(refreshTokenExpirationDays * 24 * 60 * 60);
 
         return JWT.create()
+                .withJWTId(UUID.randomUUID().toString())
                 .withSubject(userDb.getUsername())
                 .withIssuedAt(Date.from(now))
                 .withExpiresAt(Date.from(expiry))
@@ -64,5 +68,15 @@ public class JwtService {
 
     public String getUsernameFromRefreshToken(String token) {
         return JWT.require(algorithm()).withClaim("type", "refresh").build().verify(token).getSubject();
+    }
+
+    public String getJtiFromToken(String token) {
+        DecodedJWT decoded = JWT.decode(token);
+        return decoded.getId();
+    }
+
+    public Instant getExpirationFromToken(String token) {
+        DecodedJWT decoded = JWT.decode(token);
+        return decoded.getExpiresAtAsInstant();
     }
 }

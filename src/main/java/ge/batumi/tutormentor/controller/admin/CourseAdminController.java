@@ -6,6 +6,7 @@ import ge.batumi.tutormentor.model.db.Course;
 import ge.batumi.tutormentor.model.request.CourseRequest;
 import ge.batumi.tutormentor.model.response.CourseResponse;
 import ge.batumi.tutormentor.services.CourseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,7 +35,7 @@ public class CourseAdminController {
      * @return The created Course.
      */
     @PostMapping
-    public ResponseEntity<Course> create(@RequestBody CourseRequest request, Principal principal) {
+    public ResponseEntity<Course> create(@Valid @RequestBody CourseRequest request, Principal principal) {
         return ResponseEntity.ok(courseService.createCourse(request, principal));
     }
 
@@ -48,7 +49,7 @@ public class CourseAdminController {
     @PutMapping("/{id}")
     public ResponseEntity<Course> update(
             @PathVariable String id,
-            @RequestBody CourseRequest request) throws ResourceNotFoundException {
+            @Valid @RequestBody CourseRequest request) throws ResourceNotFoundException {
         return ResponseEntity.ok(courseService.updateCourse(id, request));
     }
 

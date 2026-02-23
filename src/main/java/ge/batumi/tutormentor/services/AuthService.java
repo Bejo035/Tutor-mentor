@@ -23,6 +23,7 @@ public class AuthService {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     public AuthResponse login(LoginRequest request) throws BadRequestException {
         UserDb userDb = userService.loadUserByUsername(request.getUsername());
@@ -38,6 +39,7 @@ public class AuthService {
             throw new BadRequestException("Email or username is taken.");
         }
 
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
         UserDb userDb = new UserDb(request);
         userDb = userService.save(userDb);
         if (files != null && !files.isEmpty()) {
@@ -54,10 +56,31 @@ public class AuthService {
 
     public AuthResponse refresh(RefreshRequest request) {
         if (jwtService.isRefreshTokenValid(request.getRefreshToken())) {
+            // Blacklist the old refresh token
+            String jti = jwtService.getJtiFromToken(request.getRefreshToken());
+            if (jti != null) {
+                tokenBlacklistService.blacklist(jti, jwtService.getExpirationFromToken(request.getRefreshToken()));
+            }
+
             String username = jwtService.getUsernameFromRefreshToken(request.getRefreshToken());
             UserDb userDb = userService.loadUserByUsername(username);
             return generateResponse(userDb);
         }
         throw new BadCredentialsException("Invalid refreshToken");
+    }
+
+    public void logout(String accessToken, String refreshToken) {
+        if (accessToken != null) {
+            String jti = jwtService.getJtiFromToken(accessToken);
+            if (jti != null) {
+                tokenBlacklistService.blacklist(jti, jwtService.getExpirationFromToken(accessToken));
+            }
+        }
+        if (refreshToken != null) {
+            String jti = jwtService.getJtiFromToken(refreshToken);
+            if (jti != null) {
+                tokenBlacklistService.blacklist(jti, jwtService.getExpirationFromToken(refreshToken));
+            }
+        }
     }
 }

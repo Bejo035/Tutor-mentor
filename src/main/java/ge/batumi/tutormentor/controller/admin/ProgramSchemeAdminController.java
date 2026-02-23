@@ -6,6 +6,7 @@ import ge.batumi.tutormentor.model.request.ProgramSchemeRequest;
 import ge.batumi.tutormentor.model.response.ProgramSchemeFullResponse;
 import ge.batumi.tutormentor.model.response.ProgramSchemeResponse;
 import ge.batumi.tutormentor.services.ProgramSchemeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class ProgramSchemeAdminController {
      * @return The created ProgramScheme.
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProgramSchemeResponse> create(@RequestPart("data") ProgramSchemeRequest request, @RequestParam MultiValueMap<String, MultipartFile> files, Principal principal) {
+    public ResponseEntity<ProgramSchemeResponse> create(@Valid @RequestPart("data") ProgramSchemeRequest request, @RequestParam MultiValueMap<String, MultipartFile> files, Principal principal) {
         return ResponseEntity.ok(programSchemeManager.getProgramSchemeResponse(programSchemeService.createProgramScheme(request, files, principal)));
     }
 
@@ -51,7 +52,7 @@ public class ProgramSchemeAdminController {
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProgramSchemeResponse> update(
             @PathVariable String id,
-            @RequestPart(value = "data", required = false) ProgramSchemeRequest request,
+            @Valid @RequestPart(value = "data", required = false) ProgramSchemeRequest request,
             @RequestParam MultiValueMap<String, MultipartFile> files) throws ResourceNotFoundException {
         return ResponseEntity.ok(programSchemeManager.getProgramSchemeResponse(programSchemeService.updateProgramScheme(id, request, files)));
     }

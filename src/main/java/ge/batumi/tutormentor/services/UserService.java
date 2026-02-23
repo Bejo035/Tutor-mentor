@@ -6,6 +6,7 @@ import ge.batumi.tutormentor.model.db.UserFileDb;
 import ge.batumi.tutormentor.model.db.UserProgramRole;
 import ge.batumi.tutormentor.model.request.UpdateUserRequest;
 import ge.batumi.tutormentor.model.request.UserRequest;
+import ge.batumi.tutormentor.model.response.UserPublicResponse;
 import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -30,11 +32,13 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
     private static final Logger LOGGER = LogManager.getLogger(UserService.class);
     private final ResourceService resourceService;
     private final UserFileService userFileService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository repository, ResourceService resourceService, UserFileService userFileService) {
+    public UserService(UserRepository repository, ResourceService resourceService, UserFileService userFileService, PasswordEncoder passwordEncoder) {
         super(repository);
         this.resourceService = resourceService;
         this.userFileService = userFileService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserDb save(UserDb userDb) {
@@ -42,12 +46,16 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
     }
 
     public UserDb addUser(UserRequest request) {
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
         return repository.save(new UserDb(request));
     }
 
     public UserDb updateUser(String id, UserRequest request) throws ResourceNotFoundException {
         UserDb userDb = findById(id);
-        BeanUtils.copyProperties(request, userDb);// TODO here additional checks is needed!!!
+        if (request.getPassword() != null) {
+            request.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        BeanUtils.copyProperties(request, userDb);
         return repository.save(userDb);
     }
 
@@ -57,7 +65,7 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
             throw new ResourceNotFoundException("Could not find user for '%s' username".formatted(userPrincipal.getName()));
         }
         if (request != null) {
-            BeanUtils.copyProperties(request, userDb);// TODO here additional checks is needed!!!
+            BeanUtils.copyProperties(request, userDb);
         }
         if (files != null && !files.isEmpty()) {
             updateUserFiles(files, userDb);
@@ -125,12 +133,11 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
         return userFileDbListToSave;
     }
 
-
-    public List<UserResponse> getMentorsAndTutors() {
+    public List<UserPublicResponse> getMentorsAndTutorsPublic() {
         Set<UserDb> result = new HashSet<>(repository.findAllByProgramRolesContains(UserProgramRole.MENTOR));
         result.addAll(repository.findAllByProgramRolesContains(UserProgramRole.TUTOR));
 
-        return result.stream().map(this::toUserResponse).toList();
+        return result.stream().map(this::toUserPublicResponse).toList();
     }
 
     public UserResponse toUserResponse(UserDb userDb) {
@@ -138,6 +145,24 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
         BeanUtils.copyProperties(userDb, userResponse);
         addAllUserFilesToUserResponse(userResponse);
         return userResponse;
+    }
+
+    public UserPublicResponse toUserPublicResponse(UserDb userDb) {
+        UserPublicResponse response = new UserPublicResponse();
+        response.setId(userDb.getId());
+        response.setName(userDb.getName());
+        response.setSurname(userDb.getSurname());
+        response.setProgramRoles(userDb.getProgramRoles());
+        response.setMentoringCourseName(userDb.getMentoringCourseName());
+        response.setCourseDescription(userDb.getCourseDescription());
+        response.setRating(userDb.getRating());
+
+        List<UserFileDb> userFileDbList = userFileService.findAllByUserId(userDb.getId());
+        MultiValueMap<String, String> keyToFileIdsMap = new LinkedMultiValueMap<>();
+        userFileDbList.forEach(userFileDb -> keyToFileIdsMap.add(userFileDb.getKey(), userFileDb.getFileId()));
+        response.setKeyToFileIdsMap(keyToFileIdsMap);
+
+        return response;
     }
 
     public void addAllUserFilesToUserResponse(UserResponse userResponse) {

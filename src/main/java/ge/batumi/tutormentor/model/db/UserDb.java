@@ -3,8 +3,6 @@ package ge.batumi.tutormentor.model.db;
 
 import ge.batumi.tutormentor.model.request.RegisterRequest;
 import ge.batumi.tutormentor.model.request.UserRequest;
-import ge.batumi.tutormentor.model.response.UserData;
-import ge.batumi.tutormentor.security.config.SecurityConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -50,13 +48,8 @@ public class UserDb implements UserDetails {
     private List<UserProgramRole> programRoles = new ArrayList<>();
     private Integer rating;
 
-    public UserData toUserData() {
-        return new UserData(id, name, surname, workingPlace, workingPosition);
-    }
-
     public UserDb(UserRequest request) {
         BeanUtils.copyProperties(request, this);
-        setPassword(request.getPassword());
     }
 
     public UserDb(RegisterRequest request) throws BadRequestException {
@@ -66,16 +59,11 @@ public class UserDb implements UserDetails {
         BeanUtils.copyProperties(request, this);
         roles.add(request.getUserRole());
         programRoles.add(request.getProgramRole());
-        setPassword(request.getPassword());
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream().map(UserRole::name).map(SimpleGrantedAuthority::new).toList();
-    }
-
-    public void setPassword(String password) {
-        this.password = SecurityConfig.passwordEncoder().encode(password);
     }
 
     @Override

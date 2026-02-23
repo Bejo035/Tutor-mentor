@@ -4,9 +4,11 @@ import ge.batumi.tutormentor.exceptions.ExpectationsNotMet;
 import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -34,4 +36,12 @@ public class ControllerExceptionHandler {
         return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
     }
 
+    @ExceptionHandler(value = {MethodArgumentNotValidException.class})
+    public ResponseEntity<?> validationException(MethodArgumentNotValidException exception) {
+        Map<String, String> errors = new HashMap<>();
+        exception.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage())
+        );
+        return ResponseEntity.badRequest().body(Map.of("message", "Validation failed", "errors", errors));
+    }
 }
