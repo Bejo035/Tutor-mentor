@@ -7,6 +7,8 @@ import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
-import java.util.List;
 
 /**
  * Controller class to handle user related stuff.
@@ -51,10 +52,12 @@ public class UserController {
     }
 
     /**
-     * Returns public profile data for all mentors and tutors.
+     * Returns paginated public profile data for all mentors and tutors.
      */
     @GetMapping("mentors")
-    public ResponseEntity<List<UserPublicResponse>> getMentors() {
-        return ResponseEntity.ok(userService.getMentorsAndTutorsPublic());
+    public ResponseEntity<Page<UserPublicResponse>> getMentors(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(userService.getMentorsAndTutorsPublic(PageRequest.of(page, size)));
     }
 }

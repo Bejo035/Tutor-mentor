@@ -23,10 +23,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.security.Principal;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Service layer for user management including CRUD, file uploads, and Spring Security integration.
@@ -191,13 +192,12 @@ public class UserService extends ARepositoryService<UserRepository, UserDb, Stri
     }
 
     /**
-     * Returns public profile data for all users who have a MENTOR or TUTOR program role.
+     * Returns paginated public profile data for all users who have a MENTOR or TUTOR program role.
      */
-    public List<UserPublicResponse> getMentorsAndTutorsPublic() {
-        Set<UserDb> result = new HashSet<>(repository.findAllByProgramRolesContains(UserProgramRole.MENTOR));
-        result.addAll(repository.findAllByProgramRolesContains(UserProgramRole.TUTOR));
-
-        return result.stream().map(this::toUserPublicResponse).toList();
+    public Page<UserPublicResponse> getMentorsAndTutorsPublic(Pageable pageable) {
+        Page<UserDb> page = repository.findByProgramRolesIn(
+                List.of(UserProgramRole.MENTOR, UserProgramRole.TUTOR), pageable);
+        return page.map(this::toUserPublicResponse);
     }
 
     /**
