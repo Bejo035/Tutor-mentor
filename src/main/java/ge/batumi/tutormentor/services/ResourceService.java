@@ -32,7 +32,8 @@ public class ResourceService {
             "application/vnd.ms-excel",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             "application/vnd.ms-powerpoint",
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "application/json"
     );
 
     private static final Map<String, Set<String>> EXTENSION_TO_CONTENT_TYPES = Map.ofEntries(
