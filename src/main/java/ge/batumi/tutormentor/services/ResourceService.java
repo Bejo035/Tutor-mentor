@@ -60,7 +60,7 @@ public class ResourceService {
      * @throws BadRequestException if the file fails validation.
      */
     public ObjectId uploadFile(MultipartFile file) throws IOException {
-        validateFile(file);
+//        validateFile(file);
         return gridFsTemplate.store(
                 file.getInputStream(),
                 file.getOriginalFilename(),
