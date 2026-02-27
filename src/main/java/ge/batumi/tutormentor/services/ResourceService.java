@@ -60,7 +60,7 @@ public class ResourceService {
      * @throws BadRequestException if the file fails validation.
      */
     public ObjectId uploadFile(MultipartFile file) throws IOException {
-//        validateFile(file);
+        validateFile(file);
         return gridFsTemplate.store(
                 file.getInputStream(),
                 file.getOriginalFilename(),
@@ -74,17 +74,19 @@ public class ResourceService {
         }
 
         String contentType = file.getContentType();
-        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
-            throw new BadRequestException("File type not allowed: " + contentType);
-        }
+        System.out.println("contentType = " + contentType);
+//        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+//            throw new BadRequestException("File type not allowed: " + contentType);
+//        }
 
         String originalFilename = file.getOriginalFilename();
-        if (originalFilename != null) {
-            String extension = getFileExtension(originalFilename).toLowerCase();
-            if (!EXTENSION_TO_CONTENT_TYPES.containsKey(extension)) {
-                throw new BadRequestException("File extension not allowed: " + extension);
-            }
-        }
+        System.out.println("originalFilename = " + originalFilename);
+//        if (originalFilename != null) {
+//            String extension = getFileExtension(originalFilename).toLowerCase();
+//            if (!EXTENSION_TO_CONTENT_TYPES.containsKey(extension)) {
+//                throw new BadRequestException("File extension not allowed: " + extension);
+//            }
+//        }
     }
 
     private String getFileExtension(String filename) {
