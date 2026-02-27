@@ -5,8 +5,8 @@ import ge.batumi.tutormentor.model.db.Course;
 import ge.batumi.tutormentor.model.db.UserDb;
 import ge.batumi.tutormentor.model.request.CourseRequest;
 import ge.batumi.tutormentor.repository.CourseRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -19,7 +19,7 @@ import java.util.List;
 @Service
 public class CourseService extends ARepositoryService<CourseRepository, Course, String> {
 
-    private static final Logger LOGGER = LogManager.getLogger(CourseService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CourseService.class);
     private final UserService userService;
 
     public CourseService(CourseRepository repository, UserService userService) {

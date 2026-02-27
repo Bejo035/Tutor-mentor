@@ -48,25 +48,25 @@ public class UserAdminController {
      * Creates a new user.
      */
     @PostMapping
-    public UserResponse addUser(@Valid @RequestBody UserRequest request) {
-        return programSchemeManager.getAsUserResponse(userService.addUser(request));
+    public ResponseEntity<UserResponse> addUser(@Valid @RequestBody UserRequest request) {
+        return ResponseEntity.ok(programSchemeManager.getAsUserResponse(userService.addUser(request)));
     }
 
     /**
      * Updates an existing user by ID.
      */
     @PutMapping("{id}")
-    public UserResponse updateUser(@PathVariable String id, @Valid @RequestBody UserRequest request) throws ResourceNotFoundException {
-        return programSchemeManager.getAsUserResponse(userService.updateUser(id, request));
+    public ResponseEntity<UserResponse> updateUser(@PathVariable String id, @Valid @RequestBody UserRequest request) throws ResourceNotFoundException {
+        return ResponseEntity.ok(programSchemeManager.getAsUserResponse(userService.updateUser(id, request)));
     }
 
     /**
      * Deletes a user by ID.
      */
     @DeleteMapping("{id}")
-    public String deleteUser(@PathVariable String id) {
+    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
-        return "Success";
+        return ResponseEntity.ok(Map.of("message", "Success"));
     }
 
     /**

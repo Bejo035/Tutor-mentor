@@ -1,7 +1,7 @@
 package ge.batumi.tutormentor.services;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
@@ -20,7 +20,7 @@ import java.util.function.Consumer;
  */
 @Component
 public class FileUploadHelper {
-    private static final Logger LOGGER = LogManager.getLogger(FileUploadHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileUploadHelper.class);
     private final ResourceService resourceService;
 
     public FileUploadHelper(ResourceService resourceService) {

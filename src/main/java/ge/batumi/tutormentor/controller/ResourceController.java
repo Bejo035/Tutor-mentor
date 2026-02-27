@@ -3,6 +3,7 @@ package ge.batumi.tutormentor.controller;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import ge.batumi.tutormentor.services.ResourceService;
 import lombok.RequiredArgsConstructor;
+import org.bson.Document;
 import org.springframework.core.io.Resource;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.http.MediaType;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("api/v1/resource")
 public class ResourceController {
+    private static final String CONTENT_TYPE_KEY = "_contentType";
     private final ResourceService resourceService;
 
     /**
@@ -35,10 +37,14 @@ public class ResourceController {
 
         GridFsResource resource = resourceService.getResource(file);
 
+        Document metadata = file.getMetadata();
+        String contentType = (metadata != null) ? metadata.getString(CONTENT_TYPE_KEY) : null;
+        MediaType mediaType = (contentType != null)
+                ? MediaType.parseMediaType(contentType)
+                : MediaType.APPLICATION_OCTET_STREAM;
+
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(
-                        file.getMetadata().getString("_contentType")
-                ))
+                .contentType(mediaType)
                 .body(resource);
     }
 

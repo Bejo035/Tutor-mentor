@@ -10,8 +10,8 @@ import ge.batumi.tutormentor.model.response.UserPublicResponse;
 import ge.batumi.tutormentor.model.response.UserResponse;
 import ge.batumi.tutormentor.repository.UserRepository;
 import ge.batumi.tutormentor.security.UserDetailsAdapter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -34,7 +34,7 @@ import java.util.List;
  */
 @Service
 public class UserService extends ARepositoryService<UserRepository, UserDb, String> implements UserDetailsService {
-    private static final Logger LOGGER = LogManager.getLogger(UserService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
     private final UserFileService userFileService;
     private final FileUploadHelper fileUploadHelper;
     private final PasswordEncoder passwordEncoder;

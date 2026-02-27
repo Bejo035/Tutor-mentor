@@ -44,8 +44,9 @@ public class CourseController {
      */
     @PostMapping
     @PreAuthorize("@securityExpression.hasProgramRole('MENTOR') or @securityExpression.hasProgramRole('TUTOR')")
-    public ResponseEntity<Course> create(@Valid @RequestBody CourseRequest request, Principal principal) {
-        return ResponseEntity.ok(courseService.createCourse(request, principal));
+    public ResponseEntity<CourseResponse> create(@Valid @RequestBody CourseRequest request, Principal principal) {
+        Course course = courseService.createCourse(request, principal);
+        return ResponseEntity.ok(programSchemeManager.getAllAsCourseResponse(List.of(course)).get(0));
     }
 
     /**

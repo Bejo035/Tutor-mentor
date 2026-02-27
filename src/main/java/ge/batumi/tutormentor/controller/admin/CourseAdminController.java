@@ -38,8 +38,9 @@ public class CourseAdminController {
      * @return The created Course.
      */
     @PostMapping
-    public ResponseEntity<Course> create(@Valid @RequestBody CourseRequest request, Principal principal) {
-        return ResponseEntity.ok(courseService.createCourse(request, principal));
+    public ResponseEntity<CourseResponse> create(@Valid @RequestBody CourseRequest request, Principal principal) {
+        Course course = courseService.createCourse(request, principal);
+        return ResponseEntity.ok(programSchemeManager.getAllAsCourseResponse(List.of(course)).get(0));
     }
 
     /**
@@ -50,10 +51,11 @@ public class CourseAdminController {
      * @return The updated Course.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Course> update(
+    public ResponseEntity<CourseResponse> update(
             @PathVariable String id,
             @Valid @RequestBody CourseRequest request) throws ResourceNotFoundException {
-        return ResponseEntity.ok(courseService.updateCourse(id, request));
+        Course course = courseService.updateCourse(id, request);
+        return ResponseEntity.ok(programSchemeManager.getAllAsCourseResponse(List.of(course)).get(0));
     }
 
     /**

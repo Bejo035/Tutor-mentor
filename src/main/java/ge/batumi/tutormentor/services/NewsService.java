@@ -5,8 +5,8 @@ import ge.batumi.tutormentor.model.db.NewsFileDb;
 import ge.batumi.tutormentor.model.request.NewsRequest;
 import ge.batumi.tutormentor.model.response.NewsResponse;
 import ge.batumi.tutormentor.repository.NewsRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ import java.util.Optional;
  */
 @Service
 public class NewsService extends ARepositoryService<NewsRepository, NewsDb, String> {
-    private static final Logger LOGGER = LogManager.getLogger(NewsService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NewsService.class);
     private final NewsFilesService newsFilesService;
     private final FileUploadHelper fileUploadHelper;
 

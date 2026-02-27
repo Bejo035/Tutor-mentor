@@ -8,8 +8,8 @@ import ge.batumi.tutormentor.model.request.RegisterRequest;
 import ge.batumi.tutormentor.model.response.AuthResponse;
 import ge.batumi.tutormentor.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private static final Logger LOGGER = LogManager.getLogger(AuthService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthService.class);
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;

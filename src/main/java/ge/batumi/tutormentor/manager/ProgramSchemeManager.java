@@ -9,8 +9,8 @@ import ge.batumi.tutormentor.services.ProgramParticipantService;
 import ge.batumi.tutormentor.services.ProgramSchemeFileService;
 import ge.batumi.tutormentor.services.UserService;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Component
 public class ProgramSchemeManager {
-    private static final Logger LOGGER = LogManager.getLogger(ProgramSchemeManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProgramSchemeManager.class);
     private final ProgramSchemeFileService programSchemeFileService;
     private final CourseService courseService;
     private final UserService userService;

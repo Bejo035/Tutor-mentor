@@ -3,6 +3,9 @@ package ge.batumi.tutormentor.handlers;
 import ge.batumi.tutormentor.exceptions.BadRequestException;
 import ge.batumi.tutormentor.exceptions.ExpectationsNotMet;
 import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -20,13 +23,14 @@ import java.util.Map;
  */
 @ControllerAdvice
 public class ControllerExceptionHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ControllerExceptionHandler.class);
 
     /**
      * Handles {@link ResourceNotFoundException} by returning a 400 response with the error message.
      */
     @ExceptionHandler(value = {ResourceNotFoundException.class})
     public ResponseEntity<?> resourceNotFoundException(ResourceNotFoundException exception) {
-        return ResponseEntity.badRequest().header("errorMessage", exception.getMessage()).body(Map.of("message", exception.getMessage()));
+        return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
     }
 
     /**
@@ -55,5 +59,15 @@ public class ControllerExceptionHandler {
                 errors.put(error.getField(), error.getDefaultMessage())
         );
         return ResponseEntity.badRequest().body(Map.of("message", "Validation failed", "errors", errors));
+    }
+
+    /**
+     * Catches all unhandled exceptions and returns a generic 500 response (no stack trace leakage).
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleUnexpectedException(Exception exception) {
+        LOGGER.error("Unhandled exception", exception);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", "An unexpected error occurred"));
     }
 }

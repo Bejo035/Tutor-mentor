@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Response DTO for a news article including file references.
@@ -22,7 +22,7 @@ public class NewsResponse {
     private String id;
     private String title;
     private String description;
-    private LocalDateTime addDate;
+    private Instant addDate;
     @JsonIgnore
     private MultiValueMap<String, String> keyToFileIdsMap = new LinkedMultiValueMap<>();
 

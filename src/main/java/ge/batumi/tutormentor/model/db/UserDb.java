@@ -8,9 +8,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.Instant;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +53,10 @@ public class UserDb {
     private List<UserRole> roles = new ArrayList<>();
     private List<UserProgramRole> programRoles = new ArrayList<>();
     private Integer rating;
+    @CreatedDate
+    private Instant createdAt;
+    @LastModifiedDate
+    private Instant updatedAt;
 
     public UserDb(UserRequest request) {
         BeanUtils.copyProperties(request, this);

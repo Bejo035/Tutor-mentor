@@ -6,8 +6,8 @@ import ge.batumi.tutormentor.model.db.ProgramSchemeFileDb;
 import ge.batumi.tutormentor.model.db.UserDb;
 import ge.batumi.tutormentor.model.request.ProgramSchemeRequest;
 import ge.batumi.tutormentor.repository.ProgramSchemeRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
@@ -23,7 +23,7 @@ import java.util.List;
 @Service
 public class ProgramSchemeService extends ARepositoryService<ProgramSchemeRepository, ProgramSchemeDb, String> {
 
-    private static final Logger LOGGER = LogManager.getLogger(ProgramSchemeService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProgramSchemeService.class);
     private final UserService userService;
     private final ProgramSchemeFileService programSchemeFileService;
     private final FileUploadHelper fileUploadHelper;

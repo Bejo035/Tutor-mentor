@@ -5,10 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * MongoDB document representing a news article.
@@ -24,11 +26,13 @@ public class NewsDb {
 
     private String title;
     private String description;
-    private LocalDateTime addDate = LocalDateTime.now();
+    @CreatedDate
+    private Instant addDate;
+    @LastModifiedDate
+    private Instant updatedAt;
 
     public NewsDb(NewsRequest request) {
         this.title = request.getTitle();
         this.description = request.getDescription();
-        this.addDate = LocalDateTime.now();
     }
 }
