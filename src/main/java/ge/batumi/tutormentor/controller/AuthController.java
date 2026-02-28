@@ -21,7 +21,7 @@ import java.util.Map;
  * REST controller for authentication endpoints (login, register, refresh, logout).
  */
 @Controller
-@RequestMapping("api/v1/auth")
+@RequestMapping("/v1/auth")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 @PermitAll

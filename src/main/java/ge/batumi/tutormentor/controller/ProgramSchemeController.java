@@ -22,7 +22,7 @@ import java.util.List;
  * @since 24.06.2025
  */
 @RestController
-@RequestMapping("api/v1/programScheme")
+@RequestMapping("v1/programScheme")
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 @CrossOrigin(origins = "*")

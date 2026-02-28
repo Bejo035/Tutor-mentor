@@ -27,7 +27,7 @@ import java.util.List;
  * REST controller for managing ProgramScheme endpoints.
  */
 @RestController
-@RequestMapping("api/v1/admin/programScheme")
+@RequestMapping("v1/admin/programScheme")
 @CrossOrigin(origins = "*")
 @PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor

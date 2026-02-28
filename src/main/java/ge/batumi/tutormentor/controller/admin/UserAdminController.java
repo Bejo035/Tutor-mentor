@@ -22,7 +22,7 @@ import java.util.Map;
  * Admin REST controller for managing users (CRUD and confirmation).
  */
 @RestController
-@RequestMapping("api/v1/admin/users")
+@RequestMapping("v1/admin/users")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 @CrossOrigin(origins = "*")

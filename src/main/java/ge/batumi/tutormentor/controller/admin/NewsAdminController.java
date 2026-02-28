@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
  * Admin REST controller for creating and deleting news articles.
  */
 @RestController
-@RequestMapping("api/v1/admin/news")
+@RequestMapping("v1/admin/news")
 @CrossOrigin(origins = "*")
 @PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor

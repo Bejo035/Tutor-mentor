@@ -22,7 +22,7 @@ import java.util.List;
  * REST controller for managing Course endpoints (Admin only).
  */
 @RestController
-@RequestMapping("api/v1/admin/course")
+@RequestMapping("v1/admin/course")
 @CrossOrigin(origins = "*")
 @PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor

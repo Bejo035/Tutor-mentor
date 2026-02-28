@@ -27,7 +27,7 @@ import java.util.Set;
  * Controller class to handle Course related operations.
  */
 @RestController
-@RequestMapping("api/v1/course")
+@RequestMapping("v1/course")
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 @CrossOrigin(origins = "*")

@@ -26,7 +26,7 @@ import java.security.Principal;
  * @since 24.06.2025
  */
 @RestController
-@RequestMapping("api/v1/users")
+@RequestMapping("v1/users")
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 @CrossOrigin(origins = "*")

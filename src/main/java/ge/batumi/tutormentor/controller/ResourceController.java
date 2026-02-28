@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/resource")
+@RequestMapping("v1/resource")
 public class ResourceController {
     private static final String CONTENT_TYPE_KEY = "_contentType";
     private final ResourceService resourceService;

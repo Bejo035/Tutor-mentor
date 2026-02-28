@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
  * Public REST controller for retrieving news articles.
  */
 @RestController
-@RequestMapping("api/v1/news")
+@RequestMapping("v1/news")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class NewsController {
