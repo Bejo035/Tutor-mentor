@@ -8,10 +8,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * REST controller for serving uploaded file resources from GridFS.
@@ -19,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("v1/resource")
+@CrossOrigin(origins = "*")
 public class ResourceController {
     private static final String CONTENT_TYPE_KEY = "_contentType";
     private final ResourceService resourceService;
