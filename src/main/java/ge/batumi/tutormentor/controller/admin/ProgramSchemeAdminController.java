@@ -85,4 +85,14 @@ public class ProgramSchemeAdminController {
     public ResponseEntity<ProgramSchemeFullResponse> get(@PathVariable String id) throws ResourceNotFoundException {
         return ResponseEntity.ok(programSchemeManager.getAsProgramSchemeFullResponse(programSchemeService.getProgramScheme(id)));
     }
+
+    /**
+     * Delete the entity by its id.
+     *
+     * @param id id of the entity.
+     */
+    @DeleteMapping("{id}")
+    public void deleteById(@PathVariable String id) {
+        programSchemeService.deleteById(id);
+    }
 }

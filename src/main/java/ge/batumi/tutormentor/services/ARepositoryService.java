@@ -53,4 +53,13 @@ public abstract class ARepositoryService<R extends MongoRepository<K, V>, K, V> 
     public Page<K> findAll(Pageable pageable) {
         return repository.findAll(pageable);
     }
+
+    /**
+     * Delete the entity by its id.
+     *
+     * @param id id of the entity.
+     */
+    public void deleteById(V id) {
+        repository.deleteById(id);
+    }
 }
