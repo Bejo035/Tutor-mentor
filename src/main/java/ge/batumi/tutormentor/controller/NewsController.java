@@ -1,5 +1,6 @@
 package ge.batumi.tutormentor.controller;
 
+import ge.batumi.tutormentor.exceptions.ResourceNotFoundException;
 import ge.batumi.tutormentor.model.response.NewsResponse;
 import ge.batumi.tutormentor.services.NewsService;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,13 @@ public class NewsController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         return ResponseEntity.ok(newsService.getAllAsNewsResponse(PageRequest.of(page, size)));
+    }
+
+    /**
+     * Returns news by its id.
+     */
+    @GetMapping("{id}")
+    public ResponseEntity<NewsResponse> getNewsById(@PathVariable String id) throws ResourceNotFoundException {
+        return ResponseEntity.ok(newsService.getAsNewsResponse(newsService.findById(id)));
     }
 }
