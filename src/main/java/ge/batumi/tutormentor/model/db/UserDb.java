@@ -15,7 +15,6 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +34,7 @@ public class UserDb {
     private String year;
     private String strengths;
     private String motivation;
+    private String aboutMe;
     private String keywords;
     private String userFeedback;
     private String name;

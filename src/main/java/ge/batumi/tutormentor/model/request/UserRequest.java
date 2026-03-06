@@ -26,6 +26,7 @@ public class UserRequest {
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
+    private String aboutMe;
     private List<UserRole> roles;
     private List<UserProgramRole> programRoles;
     private String year;

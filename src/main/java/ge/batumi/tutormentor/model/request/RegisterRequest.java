@@ -32,6 +32,7 @@ public class RegisterRequest {
     private String year;
     private String strengths;
     private String motivation;
+    private String aboutMe;
     private String keywords;
     private String userFeedback;
     private String name;
