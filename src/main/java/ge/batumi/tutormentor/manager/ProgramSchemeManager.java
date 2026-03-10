@@ -276,6 +276,7 @@ public class ProgramSchemeManager {
                 .experience(userDb.getExperience())
                 .username(userDb.getUsername())
                 .rating(userDb.getRating())
+                .roles(userDb.getRoles())
                 .build();
         userService.addAllUserFilesToUserResponse(userResponse);
         return userResponse;
